@@ -156,6 +156,11 @@ export default function App() {
       {historyOpen && <HistoryModal onClose={() => setHistoryOpen(false)} activeChatId={activeChatId} setActiveChatId={setActiveChatId} />}
       {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
       {manualOpen && <ManualModal onClose={() => setManualOpen(false)} />}
+
+      {/* Copyright Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 z-30 h-8 flex items-center justify-center bg-black/40 backdrop-blur-sm border-t border-white/5">
+        <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/25">© 2026 Aditya Talpade · All Rights Reserved</span>
+      </footer>
     </div>
   );
 }
