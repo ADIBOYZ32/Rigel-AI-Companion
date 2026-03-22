@@ -1,9 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rigel-AI Companion</title>
+  <meta name="description"
+    content="Rigel — Your sassy AI companion with Live2D & 3D presence. Built by Aditya Talpade.">
+  <meta property="og:title" content="Rigel AI Companion">
+  <meta property="og:description"
+    content="Meet Rigel — a chaotic, sassy AI with a 2D/3D avatar, voice synthesis, and real-time lip sync.">
+  <meta property="og:image"
+    content="https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/room.png">
+  <meta property="og:url" content="https://rigel-ai-companion.talpade-reshma79.workers.dev">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Rigel AI Companion">
+  <meta name="twitter:description"
+    content="Meet Rigel — a chaotic, sassy AI with a 2D/3D avatar, voice synthesis, and real-time lip sync.">
+  <meta name="twitter:image"
+    content="https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/room.png">
+  <meta name="theme-color" content="#0d0e1b">
   <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"></script>
   <script type="importmap">
@@ -14,18 +31,19 @@
     }
   }
   </script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
   <script>
     // 🛡️ NEURAL CONSOLE FILTER (Public Debut Optimized)
     const _originalError = console.error;
-    console.error = function(...args) {
+    console.error = function (...args) {
       if (!args[0]) return;
       const s = String(args[0]);
       if (s.includes('WebGL') || s.includes('bindTexture') || s.includes('favicon.ico')) return;
       _originalError.apply(console, args);
     };
     const _originalLog = console.log;
-    console.log = function(...args) {
+    console.log = function (...args) {
       if (!args[0]) return;
       const s = String(args[0]);
       if (s.includes('Loaded FBX') || s.includes('Retargeting') || s.includes('Matched bone') || s.includes('Animation retargeting')) return;
@@ -34,8 +52,10 @@
   </script>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="589cabde-cb06-4988-adb1-9df36b3330bf"></script>
 </head>
+
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
+
 </html>
