@@ -1,0 +1,9 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* ═══ NEURAL INTERFACE SCROLLBARS ═══ */
+.fancy-scrollbar::-webkit-scrollbar { width: 6px; }
+.fancy-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); border-radius: 8px; }
+.fancy-scrollbar::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.3); border-radius: 8px; }
+.fancy-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(14, 165, 233, 0.6); }

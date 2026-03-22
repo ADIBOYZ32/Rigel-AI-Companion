@@ -1,0 +1,45 @@
+# --- Rigel AI VTuber Project .gitignore ---
+
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Node / Frontend / Build
+node_modules/
+dist/
+dist-ssr/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next/
+out/
+build/
+build_log.txt
+ts_errors.txt
+ts_out.txt
+ts_out2.txt
+
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+*.user
+
+# OS Specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.Spotlight-V100
+.Trashes
+
+# Vite & Frontend Cache
+.eslintcache
+*.tsbuildinfo
+.vite/
+coverage/

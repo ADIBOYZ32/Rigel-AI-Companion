@@ -1,0 +1,161 @@
+@custom-variant dark (&:is(.dark *));
+
+/* AI Console dark background */
+.bg-ai {
+  background: linear-gradient(135deg, #050a14 0%, #0a0f1e 50%, #050a14 100%);
+}
+
+/* Glassmorphism — dark console style */
+.glass-card {
+  background: rgba(6, 20, 50, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(100, 180, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 100, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Scanning grid background */
+.ai-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: grid-pulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes grid-pulse {
+  0%   { opacity: 0.5; }
+  100% { opacity: 1.0; }
+}
+
+/* Scan line sweep effect */
+.scan-line {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+  animation: scan 6s linear infinite;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes scan {
+  0%   { top: 0%; opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Pulse glow for live indicators */
+.live-pulse {
+  animation: live-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes live-glow {
+  0%, 100% { box-shadow: 0 0 4px 2px rgba(239, 68, 68, 0.6); }
+  50%       { box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.9); }
+}
+
+/* Chat bubble styles */
+.chat-user {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.chat-aria {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+/* Typing cursor blink */
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: #38bdf8;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Neon text glow utilities */
+.text-glow-blue   { text-shadow: 0 0 20px rgba(56, 189, 248, 0.8); }
+.text-glow-purple { text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
+
+/* Status dot */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+:root {
+  --font-size: 16px;
+  --background: #050a14;
+  --foreground: #e2f1ff;
+  --card: #060f24;
+  --card-foreground: #e2f1ff;
+  --popover: #060f24;
+  --popover-foreground: #e2f1ff;
+  --primary: #38bdf8;       /* sky blue */
+  --primary-foreground: #050a14;
+  --secondary: #0f172a;
+  --secondary-foreground: #38bdf8;
+  --muted: #0c1829;
+  --muted-foreground: #64748b;
+  --accent: #8b5cf6;         /* violet */
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(56, 189, 248, 0.12);
+  --input: transparent;
+  --input-background: #0a1628;
+  --switch-background: #38bdf8;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #38bdf8;
+  --radius: 1rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
+  html { font-size: var(--font-size); }
+  h1 { font-size: var(--text-2xl); font-weight: var(--font-weight-medium); line-height: 1.5; }
+  h2 { font-size: var(--text-xl); font-weight: var(--font-weight-medium); line-height: 1.5; }
+  h3 { font-size: var(--text-lg); font-weight: var(--font-weight-medium); line-height: 1.5; }
+  h4 { font-size: var(--text-base); font-weight: var(--font-weight-medium); line-height: 1.5; }
+  label { font-size: var(--text-base); font-weight: var(--font-weight-medium); line-height: 1.5; }
+  button { font-size: var(--text-base); font-weight: var(--font-weight-medium); line-height: 1.5; }
+  input { font-size: var(--text-base); font-weight: var(--font-weight-normal); line-height: 1.5; }
+}
