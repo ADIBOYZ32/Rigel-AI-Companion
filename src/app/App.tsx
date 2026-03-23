@@ -20,6 +20,7 @@ import type { VRMHandle } from './components/VRMModelViewer';
 import { SettingsPanel } from './components/SettingsPanel';
 import { loadSettings } from './services/settings';
 import { getCachedAssetUrl } from './services/assetCache';
+import { Analytics } from '@vercel/analytics/react';
 
 export type ViewMode = '2d' | '3d';
 
@@ -161,6 +162,8 @@ export default function App() {
       <footer className="fixed bottom-0 left-0 right-0 z-30 h-8 flex items-center justify-center bg-black/40 backdrop-blur-sm border-t border-white/5">
         <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/25">© 2026 Aditya Talpade · All Rights Reserved</span>
       </footer>
+
+      <Analytics />
     </div>
   );
 }
