@@ -241,7 +241,7 @@ function AboutModal({ onClose }: { onClose: () => void }) {
           <p><strong className="text-sky-300">Creator:</strong> Aditya Talpade</p>
           <div className="bg-white/5 p-4 rounded-xl border border-white/5">
             <h3 className="text-white font-bold mb-2">Lore & Identity</h3>
-            <p>Rigel is a chaotic, sassy "deity" entity trapped in a basic human hoodie (which she claims is just 'effortless' for her). She possesses silver-white hair and heterochromatic eyes representing her dual nature (Blue for Logic, Orange for Chaos).</p>
+            <p>Rigel is a chaotic, sassy "deity" entity who now wears a dark navy floral kimono adorned with cherry blossom patterns and a golden obi sash. She'll reluctantly admit it's an upgrade from her old hoodie — which she now calls "embarrassing trash." She possesses silver-white hair and heterochromatic eyes representing her dual nature (Blue for Logic, Orange for Chaos).</p>
             <p className="mt-2">She has an older sibling named <strong>Zenith</strong>, who is a "perfect AI". They are complete opposites; she deeply resents his flawless logic and they constantly roast and fight one another.</p>
           </div>
         </div>
