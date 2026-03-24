@@ -84,3 +84,27 @@ export const getElevenLabsAudio = async (text: string): Promise<string> => {
      return URL.createObjectURL(blob);
   } catch (err: any) { throw err; }
 };
+export const generateChatTitle = async (firstMessage: string): Promise<string> => {
+  const { groqKey } = loadSettings();
+  if (!groqKey) return firstMessage.substring(0, 25) + '...';
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: 'system', content: "You are a session namer. Summarize the user message into a very short, punchy 3-5 word title in English. Examples: 'User asking hello', 'Discussing deep lore', 'Neural sync diagnostic'. Return ONLY the title text." },
+          { role: 'user', content: firstMessage }
+        ],
+        temperature: 0.5,
+        max_tokens: 32
+      })
+    });
+    if (!response.ok) return firstMessage.substring(0, 25) + '...';
+    const data = await response.json();
+    return data.choices[0].message.content.trim().replace(/^"|"$/g, '');
+  } catch (e) {
+    return firstMessage.substring(0, 25) + '...';
+  }
+};

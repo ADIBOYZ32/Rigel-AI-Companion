@@ -9,13 +9,19 @@ export function SettingsPanel({
   userName,
   setUserName,
   ttsEnabled,
-  setTtsEnabled
+  setTtsEnabled,
+  userLogo,
+  setUserLogo,
+  theme = 'dark'
 }: { 
   onClose: () => void;
   userName: string;
   setUserName: (val: string) => void;
   ttsEnabled: boolean;
   setTtsEnabled: (val: boolean) => void;
+  userLogo: string;
+  setUserLogo: (val: string) => void;
+  theme?: 'light' | 'dark';
 }) {
   const [settings, setSettings] = useState(loadSettings());
   const [error, setError] = useState('');
@@ -41,8 +47,8 @@ export function SettingsPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 animate-in fade-in duration-300">
-      <div className="bg-[#0a0b10]/95 border border-white/10 rounded-[40px] w-full max-w-xl overflow-hidden shadow-[0_0_100px_rgba(14,165,233,0.15)] flex flex-col h-[95vh] max-h-[900px]">
+    <div className={`fixed inset-0 z-[200] flex items-center justify-center backdrop-blur-xl p-4 animate-in fade-in duration-300 ${theme === 'dark' ? 'bg-black/80' : 'bg-white/40'}`}>
+      <div className={`border rounded-[40px] w-full max-w-xl overflow-hidden shadow-[0_0_100px_rgba(14,165,233,0.15)] flex flex-col h-[95vh] max-h-[900px] transition-all ${theme === 'dark' ? 'bg-[#0a0b10]/95 border-white/10' : 'bg-white border-black/10'}`}>
         
         {/* Header */}
         <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 bg-white/[0.02]">
@@ -60,18 +66,50 @@ export function SettingsPanel({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-10 py-10 space-y-10 custom-scrollbar">
           
-          {/* Identity Protocol */}
           <section className="space-y-4">
-            <label className="text-[10px] uppercase tracking-widest text-sky-400 font-black flex items-center gap-3">
-              <User size={14} /> Identity Protocol
-            </label>
-            <input 
-              type="text" 
-              placeholder="ENTER NAME..." 
-              className={`w-full bg-[#121422] border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-[24px] px-8 py-5 text-sm text-white focus:border-sky-500 font-bold outline-none transition-all placeholder:text-white/5`}
-              value={userName}
-              onChange={(e) => handleNameChange(e.target.value)}
-            />
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] uppercase tracking-widest text-sky-500 font-black flex items-center gap-3">
+                <User size={14} /> Identity Protocol
+              </label>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-3">
+                <input 
+                  type="text" 
+                  placeholder="ENTER NAME..." 
+                  className={`w-full border rounded-[24px] px-8 py-5 text-sm font-bold outline-none transition-all ${theme === 'dark' ? 'bg-[#121422] text-white border-white/10 focus:border-sky-500 placeholder:text-white/5' : 'bg-black/5 text-slate-800 border-black/10 focus:border-sky-500 placeholder:text-slate-300'}`}
+                  value={userName}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => document.getElementById('user-logo-input')?.click()}
+                  className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden transition-all hover:border-sky-500 ${theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-black/10 bg-black/5'}`}
+                >
+                  {userLogo ? (
+                    <img src={userLogo} className="w-full h-full object-cover" alt="User Logo" />
+                  ) : (
+                    <div className="text-[8px] font-black uppercase text-sky-500 text-center px-1 leading-tight">UL LGO</div>
+                  )}
+                </div>
+                <input 
+                  id="user-logo-input" 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => setUserLogo(reader.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }} 
+                />
+                <span className={`text-[8px] mt-2 font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/20' : 'text-slate-400'}`}>UL Log</span>
+              </div>
+            </div>
             {error && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-[10px] font-black uppercase px-2">
                  <AlertTriangle size={12} className="inline mr-2" /> {error}
@@ -80,33 +118,32 @@ export function SettingsPanel({
           </section>
           {/* Core API Keys */}
           <section className="space-y-6">
-            <label className="text-[10px] uppercase tracking-widest text-sky-400 font-black flex items-center gap-3">
+            <label className="text-[10px] uppercase tracking-widest text-sky-500 font-black flex items-center gap-3">
               <Key size={14} /> Neural API Keys
             </label>
             <div className="space-y-4">
                <div className="space-y-2">
-                  <span className="text-[9px] text-white/30 uppercase tracking-[0.2em] px-2 font-black">Groq Brain Key</span>
+                  <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>Groq Brain Key</span>
                   <input
                     type="password"
                     placeholder="ENTER GROQ KEY..."
-                    className="w-full bg-[#121422] border border-white/10 rounded-2xl px-8 py-4 text-xs text-white focus:border-sky-500 outline-none transition-all font-mono"
+                    className={`w-full border rounded-2xl px-8 py-4 text-xs focus:border-sky-500 outline-none transition-all font-mono ${theme === 'dark' ? 'bg-[#121422] border-white/10 text-white' : 'bg-black/5 border-black/10 text-slate-800'}`}
                     value={settings.groqKey}
                     onChange={(e) => handleChange('groqKey', e.target.value)}
                   />
                </div>
                <div className="space-y-2">
-                  <span className="text-[9px] text-white/30 uppercase tracking-[0.3em] px-2 font-black">ElevenLabs Premium Key</span>
+                  <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>ElevenLabs Voice Key</span>
                   <input
                     type="password"
                     placeholder="ENTER ELEVENLABS KEY..."
-                    className="w-full bg-[#121422] border border-white/10 rounded-2xl px-8 py-4 text-xs text-white focus:border-sky-500 outline-none transition-all font-mono"
+                    className={`w-full border rounded-2xl px-8 py-4 text-xs focus:border-sky-500 outline-none transition-all font-mono ${theme === 'dark' ? 'bg-[#121422] border-white/10 text-white' : 'bg-black/5 border-black/10 text-slate-800'}`}
                     value={settings.elevenLabsKey}
                     onChange={(e) => handleChange('elevenLabsKey', e.target.value)}
                   />
                </div>
             </div>
           </section>
-
           {/* Genetic Protocol (LLM Selection) */}
           <section className="space-y-4">
             <label className="text-[10px] uppercase tracking-widest text-sky-400 font-black flex items-center gap-3">

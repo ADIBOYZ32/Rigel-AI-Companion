@@ -12,7 +12,8 @@ import {
   ChevronRight,
   X,
   Sun,
-  Moon
+  Moon,
+  Trash2
 } from 'lucide-react';
 import { AIChat } from './components/AIChat';
 import { Live2DViewer } from './components/Live2DViewer';
@@ -39,11 +40,27 @@ export default function App() {
   
   const [activeChatId, setActiveChatId] = useState(() => localStorage.getItem('rigel_active_chat') || 'default');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('rigel_theme') as 'light' | 'dark') || 'dark');
+  const [userLogo, setUserLogo] = useState(() => localStorage.getItem('rigel_user_logo') || '');
+  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
   const [bgUrl, setBgUrl] = useState(`url('https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/room.png')`);
 
   useEffect(() => {
     localStorage.setItem('rigel_theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('rigel_user_logo', userLogo);
+  }, [userLogo]);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobilePortrait(isMobile && window.innerHeight > window.innerWidth);
+    };
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    return () => window.removeEventListener('resize', checkOrientation);
+  }, []);
 
   useEffect(() => {
     getCachedAssetUrl('https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/room.png')
@@ -124,6 +141,7 @@ export default function App() {
                    ttsEnabled={ttsEnabled}
                    chatId={activeChatId}
                    theme={theme}
+                   userLogo={userLogo}
                 />
               </div>
            </div>
@@ -136,9 +154,9 @@ export default function App() {
                 {!rigelMinimized ? (
                   <motion.div 
                     layoutId="pip-rigel"
-                    className={`flex-1 border-2 rounded-[32px] overflow-hidden relative shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all ${theme === 'dark' ? 'bg-[#101222]/40 backdrop-blur-3xl border-sky-500/30' : 'bg-white/40 backdrop-blur-3xl border-sky-500/30'}`}
+                    className={`flex-1 border-2 rounded-[32px] overflow-hidden relative shadow-[0_30px_60px_rgba(0,0,0,0.3)] transition-all bg-[#0d0e1b] border-sky-500/30`}
                   >
-                     <div className="absolute inset-0 z-0 opacity-20 pointer-events-none grayscale" style={{ backgroundImage: bgUrl, backgroundSize: 'cover' }} />
+                     <div className="absolute inset-0 z-0 opacity-40 pointer-events-none" style={{ backgroundImage: bgUrl, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'contrast(1.1) brightness(0.8)' }} />
                      <div className="absolute inset-0 z-10">
                         {/* ═══ DYNAMIC POINTER-EVENT FIREWALL ═══ */}
                         <div className={`absolute inset-0 transition-opacity duration-700 ${viewMode === '2d' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
@@ -166,8 +184,17 @@ export default function App() {
         </div>
       </main>
 
-      {settingsOpen && (
-        <SettingsPanel onClose={() => setSettingsOpen(false)} userName={userName} setUserName={setUserName} ttsEnabled={ttsEnabled} setTtsEnabled={setTtsEnabled} />
+       {settingsOpen && (
+        <SettingsPanel 
+          onClose={() => setSettingsOpen(false)} 
+          userName={userName} 
+          setUserName={setUserName} 
+          ttsEnabled={ttsEnabled} 
+          setTtsEnabled={setTtsEnabled} 
+          userLogo={userLogo}
+          setUserLogo={setUserLogo}
+          theme={theme}
+        />
       )}
       
       {historyOpen && <HistoryModal onClose={() => setHistoryOpen(false)} activeChatId={activeChatId} setActiveChatId={setActiveChatId} theme={theme} />}
@@ -180,6 +207,28 @@ export default function App() {
       </footer>
 
       <Analytics />
+
+      {/* Orientation Warning Overlay */}
+      <AnimatePresence>
+        {isMobilePortrait && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center p-12 text-center"
+          >
+            <motion.div 
+              animate={{ rotate: 90 }} 
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="text-sky-500 mb-8"
+            >
+              <Activity size={64} />
+            </motion.div>
+            <h2 className="text-xl font-black text-white uppercase tracking-widest mb-4">Neural Misalignment</h2>
+            <p className="text-white/40 text-[10px] leading-relaxed uppercase tracking-widest">Architect, her manifestation requires horizontal stability. Please rotate your device to landscape for neural sync.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -235,15 +284,31 @@ function HistoryModal({ onClose, activeChatId, setActiveChatId, theme = 'dark' }
             sessions.map((s) => (
               <div 
                 key={s.id} 
-                onClick={() => handleSelect(s.id)}
-                className={`p-4 rounded-xl text-xs leading-relaxed border cursor-pointer transition-all ${
+                className={`p-4 rounded-xl text-xs leading-relaxed border cursor-pointer transition-all flex items-center justify-between group/item ${
                   activeChatId === s.id 
                     ? theme === 'dark' ? 'bg-sky-500/20 border-sky-400/50 text-white shadow-[0_0_15px_rgba(14,165,233,0.2)]' : 'bg-sky-500/10 border-sky-400/50 text-sky-800 shadow-sm'
                     : theme === 'dark' ? 'bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/[0.05] hover:text-white hover:border-white/10' : 'bg-black/[0.02] border-black/5 text-slate-500 hover:bg-black/[0.05] hover:text-slate-800 hover:border-black/10'
                 }`}
+                onClick={() => handleSelect(s.id)}
               >
-                <div className="font-bold truncate">{s.title || 'Unknown Instance'}</div>
-                <div className="text-[9px] opacity-40 mt-1 uppercase tracking-wider">{new Date(s.timestamp).toLocaleString()}</div>
+                <div className="flex-1 truncate">
+                  <div className="font-bold truncate">{s.title || 'Unknown Instance'}</div>
+                  <div className="text-[9px] opacity-40 mt-1 uppercase tracking-wider">{new Date(s.timestamp).toLocaleString()}</div>
+                </div>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const list = JSON.parse(localStorage.getItem('rigel_chat_list') || '[]');
+                    const filtered = list.filter((item: any) => item.id !== s.id);
+                    localStorage.setItem('rigel_chat_list', JSON.stringify(filtered));
+                    localStorage.removeItem(`rigel_chat_${s.id}`);
+                    setSessions(filtered.reverse());
+                    if (activeChatId === s.id) setActiveChatId(Date.now().toString());
+                  }} 
+                  className={`p-2 rounded-lg opacity-0 group-hover/item:opacity-100 transition-all ${theme === 'dark' ? 'hover:bg-red-500/20 text-white/40 hover:text-red-400' : 'hover:bg-red-50 text-slate-400 hover:text-red-600'}`}
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             ))
           )}

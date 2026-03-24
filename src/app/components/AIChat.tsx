@@ -15,7 +15,8 @@ export function AIChat({
   userName,
   ttsEnabled,
   chatId,
-  theme = 'dark'
+  theme = 'dark',
+  userLogo = ''
 }: {
   live2dRef: RefObject<Live2DHandle | null>;
   vrmRef: RefObject<VRMHandle | null>;
@@ -24,6 +25,7 @@ export function AIChat({
   ttsEnabled: boolean;
   chatId: string;
   theme?: 'light' | 'dark';
+  userLogo?: string;
 }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,14 +43,26 @@ export function AIChat({
     if (history.length === 0 && !localStorage.getItem(`rigel_chat_${chatId}`)) return;
     localStorage.setItem(`rigel_chat_${chatId}`, JSON.stringify(history));
     
-    try {
-      const list = JSON.parse(localStorage.getItem('rigel_chat_list') || '[]');
-      let title = history.length > 0 ? history[0].content.substring(0, 25) + '...' : 'New Chat';
-      const existingIndex = list.findIndex((c: any) => c.id === chatId);
-      if (existingIndex >= 0) { list[existingIndex].title = title; }
-      else { list.push({ id: chatId, title, timestamp: Date.now() }); }
-      localStorage.setItem('rigel_chat_list', JSON.stringify(list));
-    } catch (e) {}
+    const updateChatList = async () => {
+      try {
+        const list = JSON.parse(localStorage.getItem('rigel_chat_list') || '[]');
+        const existing = list.find((c: any) => c.id === chatId);
+        
+        let title = existing?.title || 'New Chat';
+        if ((!existing || existing.title === 'New Chat') && history.length > 0) {
+           title = await ai.generateChatTitle(history[0].role === 'user' ? history[0].content : history[1]?.content || 'Active Session');
+        }
+
+        const existingIndex = list.findIndex((c: any) => c.id === chatId);
+        if (existingIndex >= 0) {
+           list[existingIndex].title = title;
+        } else {
+           list.push({ id: chatId, title, timestamp: Date.now() });
+        }
+        localStorage.setItem('rigel_chat_list', JSON.stringify(list));
+      } catch (e) {}
+    };
+    updateChatList();
   }, [history, chatId]);
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -232,8 +246,19 @@ export function AIChat({
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth fancy-scrollbar">
         <AnimatePresence mode="popLayout">
           {history.map((msg, idx) => (
-            <motion.div key={`${msg.timestamp}-${idx}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-[20px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all ${
+            <motion.div key={`${msg.timestamp}-${idx}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center border transition-all overflow-hidden ${
+                msg.role === 'user' 
+                  ? theme === 'dark' ? 'bg-sky-500/10 border-sky-500/30' : 'bg-black/5 border-black/10'
+                  : theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-sky-100 border-sky-300'
+              }`}>
+                {msg.role === 'user' ? (
+                  userLogo ? <img src={userLogo} className="w-full h-full object-cover" /> : <div className="text-[8px] font-black text-sky-400">ARC</div>
+                ) : (
+                  <img src="https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/favicon-R.png" className="w-5 h-5 object-contain" />
+                )}
+              </div>
+              <div className={`max-w-[75%] rounded-[20px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all ${
                 msg.role === 'user' 
                   ? 'bg-sky-500/10 border-sky-400/20 text-sky-500 font-medium' 
                   : theme === 'dark' 
@@ -245,7 +270,10 @@ export function AIChat({
             </motion.div>
           ))}
           {loading && (
-            <motion.div key="loading-manifest" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+            <motion.div key="loading-manifest" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-4">
+              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center border transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white border-black/10 shadow-sm'}`}>
+                <img src="https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/favicon-R.png" className="w-5 h-5 object-contain animate-pulse" />
+              </div>
               <div className={`border px-4 py-2 rounded-full flex gap-1 items-center ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-black/5 border-black/5'}`}>
                 <div className="w-1 h-1 bg-sky-400 animate-bounce rounded-full" />
                 <div className="w-1 h-1 bg-sky-400 animate-bounce delay-75 rounded-full" />
