@@ -124,29 +124,86 @@ export function AIChat({
   };
 
   const toggleRecording = async () => {
+    const settings = loadSettings();
     if (isRecording) {
-      mediaRecorderRef.current?.stop();
+      if (settings.sttMode === 'web_speech' && (window as any)._recognition) {
+        (window as any)._recognition.stop();
+      } else {
+        mediaRecorderRef.current?.stop();
+      }
       setIsRecording(false);
     } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream);
-        const chunks: Blob[] = [];
-        recorder.ondataavailable = (e) => chunks.push(e.data);
-        recorder.onstop = async () => {
-          const blob = new Blob(chunks, { type: 'audio/webm' });
-          setLoading(true);
-          try {
-            const text = await ai.transcribeAudio(blob);
-            if (text) handleAIResponse(text);
-          } catch (err) {} 
-          finally { setLoading(false); }
-          stream.getTracks().forEach(t => t.stop());
+      setIsRecording(true);
+      
+      if (settings.sttMode === 'web_speech') {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          handleAIResponse("⚠ Neural Warning: This browser sector does not support Web Speech Manifestation.");
+          setIsRecording(false);
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = settings.promptLang === 'hinglish' ? 'hi-IN' : 'en-US';
+        recognition.interimResults = false;
+        recognition.onresult = (e: any) => {
+          const text = e.results[0][0].transcript;
+          if (text) handleAIResponse(text);
         };
-        mediaRecorderRef.current = recorder;
-        recorder.start();
-        setIsRecording(true);
-      } catch (err) {}
+        recognition.onend = () => setIsRecording(false);
+        recognition.onerror = () => setIsRecording(false);
+        (window as any)._recognition = recognition;
+        recognition.start();
+      } else {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          
+          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const source = audioCtx.createMediaStreamSource(stream);
+          const processor = audioCtx.createScriptProcessor(2048, 1, 1);
+          let maxVolume = 0;
+          processor.onaudioprocess = (e) => {
+             const input = e.inputBuffer.getChannelData(0);
+             let sum = 0;
+             for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+             const vol = Math.sqrt(sum / input.length);
+             if (vol > maxVolume) maxVolume = vol;
+          };
+          source.connect(processor);
+          processor.connect(audioCtx.destination);
+
+          const recorder = new MediaRecorder(stream, { 
+            mimeType: 'audio/webm;codecs=opus',
+            audioBitsPerSecond: 128000
+          });
+          const chunks: Blob[] = [];
+          recorder.ondataavailable = (e) => chunks.push(e.data);
+          recorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            
+            if (maxVolume < 0.01) {
+               handleAIResponse("⚠ Neural Warning: Your signal was too weak for ingestion. Please manifest more volume.");
+               setLoading(false);
+            } else {
+               setLoading(true);
+               try {
+                 const text = await ai.transcribeAudio(blob);
+                 const filter = (text || '').trim().toLowerCase().replace(/[.,!]/g, '');
+                 const hallucinations = ['you', 'thank you', 'subtitle', 'subtitles', 'thanks for watching', 'you more', 'you know'];
+                 const isHallucination = hallucinations.includes(filter);
+                 if (text && !isHallucination) handleAIResponse(text);
+               } catch (err) {} 
+               finally { setLoading(false); }
+            }
+            
+            processor.disconnect();
+            source.disconnect();
+            audioCtx.close();
+            stream.getTracks().forEach(t => t.stop());
+          };
+          mediaRecorderRef.current = recorder;
+          recorder.start();
+        } catch (err) { setIsRecording(false); }
+      }
     }
   };
 
