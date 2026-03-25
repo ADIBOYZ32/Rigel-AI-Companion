@@ -43,3 +43,9 @@ ehthumbs.db
 *.tsbuildinfo
 .vite/
 coverage/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
