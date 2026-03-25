@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Key, Mic, Volume2, Cpu, User, AlertTriangle } from 'lucide-react';
+import { X, Key, Mic, Volume2, User, AlertTriangle } from 'lucide-react';
 import { loadSettings, saveSettings, STTMode, TTSMode } from '../services/settings';
 
 export function SettingsPanel({ 
@@ -116,22 +116,12 @@ export function SettingsPanel({
               </motion.div>
             )}
           </section>
-          {/* Core API Keys */}
+          {/* ElevenLabs API Key only */}
           <section className="space-y-6">
             <label className="text-[10px] uppercase tracking-widest text-sky-500 font-black flex items-center gap-3">
-              <Key size={14} /> Neural API Keys
+              <Key size={14} /> Voice API Key
             </label>
             <div className="space-y-4">
-               <div className="space-y-2">
-                  <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>Groq Brain Key</span>
-                  <input
-                    type="password"
-                    placeholder="ENTER GROQ KEY..."
-                    className={`w-full border rounded-2xl px-8 py-4 text-xs focus:border-sky-500 outline-none transition-all font-mono ${theme === 'dark' ? 'bg-[#121422] border-white/10 text-white' : 'bg-black/5 border-black/10 text-slate-800'}`}
-                    value={settings.groqKey}
-                    onChange={(e) => handleChange('groqKey', e.target.value)}
-                  />
-               </div>
                <div className="space-y-2">
                   <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>ElevenLabs Voice Key</span>
                   <input
@@ -143,20 +133,6 @@ export function SettingsPanel({
                   />
                </div>
             </div>
-          </section>
-          {/* Genetic Protocol (LLM Selection) */}
-          <section className="space-y-4">
-            <label className="text-[10px] uppercase tracking-widest text-sky-400 font-black flex items-center gap-3">
-              <Cpu size={14} /> Cognitive Architecture
-            </label>
-            <select 
-              className="w-full bg-[#121422] border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none hover:bg-white/[0.05] cursor-pointer font-bold"
-              value={settings.llmModel}
-              onChange={(e) => handleChange('llmModel', e.target.value)}
-            >
-              <option value="meta-llama/llama-4-scout-17b-16e-instruct" className="bg-zinc-900">Llama 4 Scout (17B Instruct)</option>
-              <option value="openai/gpt-oss-120b" className="bg-zinc-900">GPT-OSS 120B (Titan-Architecture)</option>
-            </select>
           </section>
 
           {/* Speech Engine Logic */}

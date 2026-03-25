@@ -23,11 +23,13 @@ import type { VRMHandle } from './components/VRMModelViewer';
 import { SettingsPanel } from './components/SettingsPanel';
 import { loadSettings } from './services/settings';
 import { getCachedAssetUrl } from './services/assetCache';
+import { LoadingScreen } from './components/LoadingScreen';
 import { Analytics } from '@vercel/analytics/react';
 
 export type ViewMode = '2d' | '3d';
 
 export default function App() {
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('2d');
   const [vrm3DeverLoaded, setVrm3DeverLoaded] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -91,6 +93,10 @@ export default function App() {
   return (
     <div className={`w-screen h-screen overflow-hidden relative font-sans transition-colors duration-500 flex ${theme === 'dark' ? 'bg-[#0a0b14] text-white' : 'bg-[#f5f5fc] text-slate-800'}`}>
       
+      <AnimatePresence>
+        {!isAppLoaded && <LoadingScreen onFinished={() => setIsAppLoaded(true)} />}
+      </AnimatePresence>
+
       <div 
         className="absolute inset-0 z-0 opacity-80 pointer-events-none transition-opacity duration-500"
         style={{ background: theme === 'dark' 

@@ -107,8 +107,8 @@ export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean }>(({ act
 
                 const anims = [
                     { name: 'Idle', path: 'https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/HappyIdle.fbx', loop: true },
-                    { name: 'Backflip', path: '/animations/Backflip.fbx', loop: false },
-                    { name: 'Laughing', path: '/animations/Laughing.fbx', loop: false },
+                    { name: 'Backflip', path: 'https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/Backflip.fbx', loop: false },
+                    { name: 'Laughing', path: 'https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/Laughing.fbx', loop: false },
                 ];
 
                 for (const anim of anims) {

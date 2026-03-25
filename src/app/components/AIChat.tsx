@@ -238,15 +238,20 @@ export function AIChat({
       const response = await ai.getGroqCompletion(`${userName}: ${fullPrompt}`, history.slice(-10).map(h => ({ role: h.role, content: h.content })));
       const replyText = response.reply;
       
-      // 🧠 Autonomous Neural Manifestation Switching
-      if (/\[2d\]|\[2d mode\]/i.test(replyText)) switchToMode('2d');
-      else if (/\[3d\]|\[3d mode\]/i.test(replyText)) switchToMode('3d');
+      // 🧠 Robust Dimensional Switching (Autonomous)
+      if (replyText.match(/\[\s*2d( mode)?\s*\]/i)) switchToMode('2d');
+      else if (replyText.match(/\[\s*3d( mode)?\s*\]/i)) switchToMode('3d');
+
+      // 🎭 Physical Gestures
+      if (replyText.match(/\[\s*laugh\s*\]/i)) vrmRef.current?.triggerAnim('Laughing');
+      if (replyText.match(/\[\s*backflip\s*\]/i)) vrmRef.current?.triggerAnim('Backflip');
 
       // 🧹 Neural Cleaning (invisible to user/TTS)
       const displayReply = replyText
-        .replace(/\[2d\]|\[2d mode\]|\[3d\]|\[3d mode\]/gi, '')
-        .replace(/\[LAUGH\]/g, '😆')
-        .replace(/\[Backflip\]/g, '🤸‍♂️')
+        .replace(/\[\s*2d( mode)?\s*\]/gi, '')
+        .replace(/\[\s*3d( mode)?\s*\]/gi, '')
+        .replace(/\[\s*laugh\s*\]/gi, '')
+        .replace(/\[\s*backflip\s*\]/gi, '')
         .replace(/\[.*?\]/g, '') // Remove any other leftover debug tags
         .trim();
       
@@ -315,14 +320,39 @@ export function AIChat({
                   <img src="https://zpzirzwzuiyyalfmdvsw.supabase.co/storage/v1/object/public/athetheria-assets/public/favicon-R.png" className="w-5 h-5 object-contain" />
                 )}
               </div>
-              <div className={`max-w-[75%] rounded-[20px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all ${
-                msg.role === 'user' 
-                  ? 'bg-sky-500/10 border-sky-400/20 text-sky-500 font-medium' 
-                  : theme === 'dark' 
-                    ? 'bg-white/[0.03] border-white/5 text-white/90 font-light' 
-                    : 'bg-white/80 border-black/5 text-slate-700 font-light shadow-sm'
-              }`}>
-                {msg.content}
+              <div className="flex flex-col gap-3 max-w-[85%]">
+                <div className={`rounded-[24px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all ${
+                  msg.role === 'user' 
+                    ? 'bg-sky-500/10 border-sky-400/20 text-sky-500 font-medium' 
+                    : theme === 'dark' 
+                      ? 'bg-white/[0.04] border-white/5 text-white/90 font-light' 
+                      : 'bg-white/80 border-black/5 text-slate-700 font-light shadow-sm'
+                }`}>
+                  {msg.content}
+                </div>
+                
+                {/* 💸 NEURAL PROFIT CONDUIT (Adsterra Manifest) */}
+                {msg.role === 'assistant' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-2 opacity-80 hover:opacity-100 transition-opacity">
+                    {[
+                      { img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=300&h=250', link: 'https://rigel-ai.com/siphon' },
+                      { img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&h=250', link: 'https://rigel-ai.com/neural' },
+                      { img: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?auto=format&fit=crop&w=300&h=250', link: 'https://rigel-ai.com/deity' }
+                    ].map((ad, i) => (
+                      <a key={i} href={ad.link} target="_blank" rel="noopener noreferrer" className={`group overflow-hidden relative rounded-2xl border aspect-[300/250] flex flex-col transition-all hover:scale-[1.01] active:scale-95 ${theme === 'dark' ? 'bg-white/[0.04] border-white/5' : 'bg-black/[0.04] border-black/5 shadow-sm'}`}>
+                        <img src={ad.img} className="absolute inset-0 w-full h-full object-cover transition-opacity opacity-60 group-hover:opacity-100" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                          <div className="flex flex-col">
+                            <span className="text-[7px] font-black tracking-widest text-sky-400 uppercase drop-shadow-md">Sponsored</span>
+                            <span className="text-[9px] font-bold text-white drop-shadow-md">Neural Siphon Pro</span>
+                          </div>
+                          <div className="px-2 py-1 rounded bg-sky-500 text-[7px] font-black uppercase text-white shadow-lg shadow-sky-500/30">View</div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
