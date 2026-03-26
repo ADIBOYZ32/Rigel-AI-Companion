@@ -33,6 +33,7 @@ export default function App() {
   const [vrm3DeverLoaded, setVrm3DeverLoaded] = useState(true);
   const [vrmActuallyLoaded, setVrmActuallyLoaded] = useState(false);
   const [manifestProgress, setManifestProgress] = useState(0);
+  const [adsEnabled, setAdsEnabled] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -210,6 +211,8 @@ export default function App() {
           userLogo={userLogo}
           setUserLogo={setUserLogo}
           theme={theme}
+          adsEnabled={adsEnabled}
+          setAdsEnabled={setAdsEnabled}
         />
       )}
       

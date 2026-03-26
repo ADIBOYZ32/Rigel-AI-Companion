@@ -7,7 +7,7 @@ import { VRMHandle } from './VRMModelViewer';
 import type { ViewMode } from '../App';
 import * as ai from '../services/aiService';
 import { loadSettings } from '../services/settings';
-import { MonetagTripleGrid } from './AdUnits';
+import { AdsterraTripleGrid } from './AdUnits';
 import { AdBlockDetector, AdBlockOverlay } from './AdBlockDetector';
 
 export function AIChat({
@@ -18,7 +18,8 @@ export function AIChat({
   ttsEnabled,
   chatId,
   theme = 'dark',
-  userLogo = ''
+  userLogo = '',
+  adsEnabled = true
 }: {
   live2dRef: RefObject<Live2DHandle | null>;
   vrmRef: RefObject<VRMHandle | null>;
@@ -28,6 +29,7 @@ export function AIChat({
   chatId: string;
   theme?: 'light' | 'dark';
   userLogo?: string;
+  adsEnabled?: boolean;
 }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -337,9 +339,9 @@ export function AIChat({
                   {msg.content}
                 </div>
                 
-                {/* 💸 Monetag Siphon Protocol: Fixed Triple Channel */}
-                {msg.role === 'assistant' && (
-                  <MonetagTripleGrid />
+                {/* 💸 Adsterra Siphon Protocol: Untouchable Grid */}
+                {msg.role === 'assistant' && adsEnabled && (
+                  <AdsterraTripleGrid />
                 )}
                 {/* 🚯 Legacy Adsterra Purge Complete */}
               </div>

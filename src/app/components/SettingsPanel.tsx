@@ -12,7 +12,9 @@ export function SettingsPanel({
   setTtsEnabled,
   userLogo,
   setUserLogo,
-  theme = 'dark'
+  theme = 'dark',
+  adsEnabled,
+  setAdsEnabled
 }: { 
   onClose: () => void;
   userName: string;
@@ -22,6 +24,8 @@ export function SettingsPanel({
   userLogo: string;
   setUserLogo: (val: string) => void;
   theme?: 'light' | 'dark';
+  adsEnabled?: boolean;
+  setAdsEnabled?: (val: boolean) => void;
 }) {
   const [settings, setSettings] = useState(loadSettings());
   const [error, setError] = useState('');
@@ -161,6 +165,22 @@ export function SettingsPanel({
                 <option value="elevenlabs" className="bg-zinc-900">ElevenLabs Master</option>
               </select>
             </div>
+          </section>
+
+          {/* Siphon Toggles */}
+          <section className="space-y-4 pt-4 border-t border-white/5">
+             <div className="flex items-center justify-between">
+                <label className="text-[10px] uppercase tracking-widest text-sky-400 font-black flex items-center gap-3">
+                  <AlertTriangle size={14} /> Fiscal Siphons (Ads)
+                </label>
+                <button 
+                  onClick={() => setAdsEnabled && setAdsEnabled(!adsEnabled)}
+                  className={`px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest transition-all ${adsEnabled ? 'bg-sky-500 text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]' : 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'}`}
+                >
+                  {adsEnabled ? 'ACTIVE' : 'PURGED'}
+                </button>
+             </div>
+             <p className={`text-[10px] leading-relaxed font-bold tracking-widest uppercase opacity-40 ${theme === 'dark' ? 'text-white' : 'text-slate-600'}`}>Enable or disable the Monetag Fiscal Manifestation conduits within the chat interface. Set to Purged if you require a 100% clean sanctuary.</p>
           </section>
         </div>
 
