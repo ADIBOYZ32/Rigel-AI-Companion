@@ -7,12 +7,37 @@ export interface ChatResponse {
   animation?: string;
 }
 
+export const checkAndIncrementUsage = () => {
+  const { groqKey } = loadSettings();
+  
+  // If user provided their own key (not the default VITE key), they bypass the limit
+  if (groqKey && groqKey !== import.meta.env.VITE_GROQ_KEY) return true;
+
+  const today = new Date().toDateString();
+  const usageStr = localStorage.getItem('rigel_daily_usage');
+  let usage = usageStr ? JSON.parse(usageStr) : { date: '', count: 0 };
+  
+  if (usage.date !== today) {
+    localStorage.setItem('rigel_daily_usage', JSON.stringify({ date: today, count: 1 }));
+    return true;
+  }
+  
+  if (usage.count >= 6) {
+    throw new Error('RATE_LIMIT_EXCEEDED');
+  }
+  
+  localStorage.setItem('rigel_daily_usage', JSON.stringify({ date: today, count: usage.count + 1 }));
+  return true;
+};
+
 export const getGroqCompletion = async (
   message: string, 
   history: { role: 'user' | 'assistant', content: string }[] = []
 ): Promise<ChatResponse> => {
   const { groqKey, llmModel } = loadSettings();
   if (!groqKey) throw new Error('Groq Key missing.');
+
+  checkAndIncrementUsage();
 
   const systemPrompt = HINGLISH_PROMPT;
 

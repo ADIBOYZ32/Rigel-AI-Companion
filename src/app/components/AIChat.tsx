@@ -292,13 +292,26 @@ export function AIChat({
               }
             } catch (err: any) {
               playFallbackTTS();
-              // Redacted secondary error bubble manifestation to ensure single messaging protocol
             }
-         } else {
-            playFallbackTTS();
-         }
+          } else {
+             playFallbackTTS();
+          }
+       }
+    } catch (e: any) {
+      if (e.message === 'RATE_LIMIT_EXCEEDED') {
+        const limitMsg = "You reached daily limit credit, to chat Rigel add your api key from the settings!";
+        setHistory(prev => [...prev, { role: 'assistant', content: limitMsg, timestamp: Date.now() }]);
+        
+        // Sassy audio response for limit
+        if (ttsEnabled) {
+          try {
+            const limitAudioUrl = await ai.getElevenLabsAudio("You reached daily limit credit, to chat Rigel add your api key! Stop begging, loser.");
+            const audio = new Audio(limitAudioUrl);
+            audio.play();
+          } catch {}
+        }
       }
-    } catch (e: any) {} 
+    } 
     finally { setLoading(false); }
   };
 
