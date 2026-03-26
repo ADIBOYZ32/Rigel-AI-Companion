@@ -20,7 +20,7 @@ const STORAGE_KEY = 'rigel_settings_v1';
 const DEFAULT_SETTINGS: RigelSettings = {
   groqKey: import.meta.env.VITE_GROQ_KEY || '',
   elevenLabsKey: '',
-  sttMode: 'web_speech',
+  sttMode: 'groq',
   ttsMode: 'edge_tts',
   promptLang: 'hinglish',
   viewMode: '3d',
