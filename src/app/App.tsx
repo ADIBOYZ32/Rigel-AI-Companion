@@ -24,14 +24,15 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { loadSettings } from './services/settings';
 import { getCachedAssetUrl } from './services/assetCache';
 import { LoadingScreen } from './components/LoadingScreen';
-import { Analytics } from '@vercel/analytics/react';
 
 export type ViewMode = '2d' | '3d';
 
 export default function App() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('2d');
-  const [vrm3DeverLoaded, setVrm3DeverLoaded] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('3d');
+  const [vrm3DeverLoaded, setVrm3DeverLoaded] = useState(true);
+  const [vrmActuallyLoaded, setVrmActuallyLoaded] = useState(false);
+  const [manifestProgress, setManifestProgress] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -94,7 +95,7 @@ export default function App() {
     <div className={`w-screen h-screen overflow-hidden relative font-sans transition-colors duration-500 flex ${theme === 'dark' ? 'bg-[#0a0b14] text-white' : 'bg-[#f5f5fc] text-slate-800'}`}>
       
       <AnimatePresence>
-        {!isAppLoaded && <LoadingScreen onFinished={() => setIsAppLoaded(true)} />}
+        {!isAppLoaded && <LoadingScreen onFinished={() => setIsAppLoaded(true)} isFullyReady={vrmActuallyLoaded} progress={manifestProgress} />}
       </AnimatePresence>
 
       <div 
@@ -121,10 +122,19 @@ export default function App() {
         </div>
       </header>
 
-      <aside className={`w-60 h-full pt-16 pb-12 z-20 border-r transition-all flex flex-col p-3 gap-2 ${theme === 'dark' ? 'bg-[#0d0e1b]/80 border-white/5' : 'bg-white/80 border-black/5'}`}>
-        <SidebarItem icon={<History size={16}/>} label="CONVO HISTORY" active={historyOpen} theme={theme} onClick={() => setHistoryOpen(true)} />
-        <SidebarItem icon={<Info size={16}/>} label="ABOUT" active={aboutOpen} theme={theme} onClick={() => setAboutOpen(true)} />
-        <div className="mt-auto space-y-2">
+      <aside className={`w-60 h-full pt-16 pb-12 z-20 border-r transition-all flex flex-col ${theme === 'dark' ? 'bg-[#0d0e1b]/80 border-white/5' : 'bg-white/80 border-black/5'}`}>
+            <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto custom-scrollbar">
+              <SidebarItem icon={<History size={18}/>} label="Convo History" active={historyOpen} theme={theme} onClick={() => setHistoryOpen(true)} />
+              <SidebarItem icon={<Info size={18}/>} label="About" active={aboutOpen} theme={theme} onClick={() => setAboutOpen(true)} />
+            </nav>
+
+            {/* 💸 Sidebar Siphon Redacted: Cleansed UI Protocol */}
+            {!rigelMinimized && (
+              <div className="px-4 py-8 opacity-20 border-t border-white/5 flex justify-center">
+                 <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+              </div>
+            )}
+           <div className="mt-auto space-y-2 p-3">
            <button onClick={() => setManualOpen(true)} className={`flex items-center justify-between w-full h-11 px-4 border rounded-xl transition-all group ${theme === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/5' : 'bg-black/5 hover:bg-black/10 border-black/5'}`}>
               <div className="flex items-center gap-3"><HelpCircle size={16} className={theme === 'dark' ? 'text-white/40' : 'text-slate-400'} /><span className={`text-[10px] font-bold ${theme === 'dark' ? 'text-white/60' : 'text-slate-600'}`}>MANUAL</span></div>
               <ChevronRight size={14} className={`${theme === 'dark' ? 'text-white/20' : 'text-slate-300'} group-hover:translate-x-1 transition-transform`} />
@@ -170,7 +180,7 @@ export default function App() {
                         </div>
                         {vrm3DeverLoaded && (
                           <div className={`absolute inset-0 transition-opacity duration-700 ${viewMode === '3d' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                             <VRMViewer ref={vrmRef} active={viewMode === '3d'} />
+                             <VRMViewer ref={vrmRef} active={viewMode === '3d'} onLoaded={() => setVrmActuallyLoaded(true)} onProgress={setManifestProgress} />
                           </div>
                         )}
                      </div>
@@ -211,8 +221,6 @@ export default function App() {
       <footer className="fixed bottom-0 left-0 right-0 z-10 h-8 flex items-center justify-center bg-black/40 backdrop-blur-sm border-t border-white/5">
         <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/25">© 2026 Aditya Talpade · All Rights Reserved</span>
       </footer>
-
-      <Analytics />
 
       {/* Orientation Warning Overlay */}
       <AnimatePresence>

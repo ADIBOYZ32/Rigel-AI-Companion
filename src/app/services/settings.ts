@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: RigelSettings = {
   sttMode: 'web_speech',
   ttsMode: 'edge_tts',
   promptLang: 'hinglish',
-  viewMode: '2d',
+  viewMode: '3d',
   llmModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
   userName: 'User',
 };

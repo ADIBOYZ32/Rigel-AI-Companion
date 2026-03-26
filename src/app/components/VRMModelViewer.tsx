@@ -18,7 +18,7 @@ export interface VRMHandle {
     setMouthVolume: (vol: number) => void; 
 }
 
-export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean }>(({ active = true }, ref) => {
+export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean, onLoaded?: () => void, onProgress?: (p: number) => void }>(({ active = true, onLoaded, onProgress }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const vrmRef = useRef<VRM | null>(null);
     const mixerRef = useRef<THREE.AnimationMixer | null>(null);
@@ -87,7 +87,22 @@ export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean }>(({ act
         controls.enableDamping = true;
         controlsRef.current = controls;
 
-        const loader = new GLTFLoader();
+        const loadingManager = new THREE.LoadingManager();
+        loadingManager.onProgress = (_url, itemsLoaded, itemsTotal) => {
+            const p = (itemsLoaded / itemsTotal) * 100;
+            // Ensure we never get stuck at 99.9%
+            const finalP = p > 98 ? 100 : p;
+            if (onProgress) onProgress(finalP);
+        };
+        
+        loadingManager.onError = (url) => {
+            console.error(`Neural Fracture at: ${url}`);
+            // Force 100% on error to prevent hanging the deity entry
+            if (onProgress) onProgress(100);
+            if (onLoaded) onLoaded();
+        };
+
+        const loader = new GLTFLoader(loadingManager);
         loader.register((parser) => new VRMLoaderPlugin(parser));
 
         const initVRM = async () => {
@@ -99,6 +114,10 @@ export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean }>(({ act
                 vrmRef.current = vrm;
                 vrm.scene.rotation.y = Math.PI;
                 scene.add(vrm.scene);
+                
+                // 🏙️ IMPACT: Report readiness immediately after scene manifest
+                if (onLoaded) onLoaded();
+                if (onProgress) onProgress(100);
 
                 lipSyncRef.current = new LipSyncManager(vrm);
                 const mixer = new THREE.AnimationMixer(vrm.scene);
@@ -119,9 +138,17 @@ export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean }>(({ act
                             if (anim.loop) action.setLoop(THREE.LoopRepeat, Infinity);
                             else { action.setLoop(THREE.LoopOnce, 1); action.clampWhenFinished = true; }
                             actionsRef.current[anim.name] = action;
-                            if (anim.name === 'Idle') playAnimation('Idle');
+                            if (anim.name === 'Idle') {
+                                playAnimation('Idle');
+                            }
                         }
                     } catch (e) { }
+                }
+            }, (xhr) => {
+                // Byte-level siphoning for the main VRM file
+                if (xhr.lengthComputable) {
+                    const p = (xhr.loaded / xhr.total) * 100;
+                    if (onProgress) onProgress(p);
                 }
             });
         };
