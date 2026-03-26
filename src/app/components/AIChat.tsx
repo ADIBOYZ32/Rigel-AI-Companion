@@ -7,7 +7,6 @@ import { VRMHandle } from './VRMModelViewer';
 import type { ViewMode } from '../App';
 import * as ai from '../services/aiService';
 import { loadSettings } from '../services/settings';
-import { AdsterraTripleGrid } from './AdUnits';
 import { AdBlockDetector, AdBlockOverlay } from './AdBlockDetector';
 
 export function AIChat({
@@ -18,8 +17,7 @@ export function AIChat({
   ttsEnabled,
   chatId,
   theme = 'dark',
-  userLogo = '',
-  adsEnabled = true
+  userLogo = ''
 }: {
   live2dRef: RefObject<Live2DHandle | null>;
   vrmRef: RefObject<VRMHandle | null>;
@@ -29,7 +27,6 @@ export function AIChat({
   chatId: string;
   theme?: 'light' | 'dark';
   userLogo?: string;
-  adsEnabled?: boolean;
 }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -313,7 +310,7 @@ export function AIChat({
       <AnimatePresence>
         {adblockActive && <AdBlockOverlay theme={theme} />}
       </AnimatePresence>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth fancy-scrollbar">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 scroll-smooth fancy-scrollbar">
         <AnimatePresence mode="popLayout">
           {history.map((msg, idx) => (
             <motion.div key={`${msg.timestamp}-${idx}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -329,7 +326,7 @@ export function AIChat({
                 )}
               </div>
               <div className="flex flex-col gap-3 max-w-[70%] md:max-w-[650px] overflow-hidden flex-shrink-0">
-                <div className={`rounded-[24px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all ${
+                <div className={`rounded-[24px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all break-words whitespace-pre-wrap overflow-hidden ${
                   msg.role === 'user' 
                     ? 'bg-sky-500/10 border-sky-400/20 text-sky-500 font-medium' 
                     : theme === 'dark' 
@@ -339,10 +336,7 @@ export function AIChat({
                   {msg.content}
                 </div>
                 
-                {/* 💸 Adsterra Siphon Protocol: Untouchable Grid */}
-                {msg.role === 'assistant' && adsEnabled && (
-                  <AdsterraTripleGrid />
-                )}
+                {/* 💸 Adsterra Siphon Protocol: Untouchable Grid (PURGED) */}
                 {/* 🚯 Legacy Adsterra Purge Complete */}
               </div>
             </motion.div>
