@@ -119,10 +119,10 @@ export const generateChatTitle = async (firstMessage: string): Promise<string> =
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
-          { role: 'system', content: "You are a session namer. Summarize the user message into a very short, punchy 3-5 word title in English. Examples: 'User asking hello', 'Discussing deep lore', 'Neural sync diagnostic'. Return ONLY the title text." },
+          { role: 'system', content: "You are a title generator. Summarize the user's message into a very short 3-5 word title. Return ONLY the title, no quotes or intro." },
           { role: 'user', content: firstMessage }
         ],
-        temperature: 0.5,
+        temperature: 0.3,
         max_tokens: 32
       })
     });

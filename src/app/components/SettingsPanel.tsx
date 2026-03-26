@@ -116,12 +116,22 @@ export function SettingsPanel({
               </motion.div>
             )}
           </section>
-          {/* ElevenLabs API Key only */}
+          {/* Neural API Keys */}
           <section className="space-y-6">
             <label className="text-[10px] uppercase tracking-widest text-sky-500 font-black flex items-center gap-3">
-              <Key size={14} /> Voice API Key
+              <Key size={14} /> Neural API Keys
             </label>
             <div className="space-y-4">
+               <div className="space-y-2">
+                  <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>Groq API Key (Bypasses Limit)</span>
+                  <input
+                    type="password"
+                    placeholder="ENTER GROQ KEY TO BYPASS FREE TRIAL..."
+                    className={`w-full border rounded-2xl px-8 py-4 text-xs focus:border-sky-500 outline-none transition-all font-mono ${theme === 'dark' ? 'bg-[#121422] border-white/10 text-white' : 'bg-black/5 border-black/10 text-slate-800'}`}
+                    value={settings.groqKey}
+                    onChange={(e) => handleChange('groqKey', e.target.value)}
+                  />
+               </div>
                <div className="space-y-2">
                   <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>ElevenLabs Voice Key</span>
                   <input
