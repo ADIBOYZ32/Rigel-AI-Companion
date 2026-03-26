@@ -32,7 +32,15 @@ const DEFAULT_SETTINGS: RigelSettings = {
 export const loadSettings = (): RigelSettings => {
   const data = localStorage.getItem(STORAGE_KEY);
   if (!data) return DEFAULT_SETTINGS;
-  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(data) }; } catch { return DEFAULT_SETTINGS; }
+  try { 
+    const parsed = JSON.parse(data);
+    // 🧠 NEURAL OVERRIDE: Prevent empty local strings from erasing the .env fallback
+    if (!parsed.groqKey) parsed.groqKey = import.meta.env.VITE_GROQ_KEY || '';
+    if (!parsed.edgeTtsUrl) parsed.edgeTtsUrl = 'https://rigel-voice.onrender.com';
+    return { ...DEFAULT_SETTINGS, ...parsed }; 
+  } catch { 
+    return DEFAULT_SETTINGS; 
+  }
 };
 
 export const saveSettings = (settings: Partial<RigelSettings>) => {
