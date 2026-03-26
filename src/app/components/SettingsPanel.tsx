@@ -145,7 +145,7 @@ export function SettingsPanel({
                <div className="space-y-2">
                   <span className={`text-[9px] uppercase tracking-[0.2em] px-2 font-black ${theme === 'dark' ? 'text-white/30' : 'text-slate-400'}`}>Edge TTS Server URL</span>
                   <input
-                    type="text"
+                    type="password"
                     placeholder="https://your-server.onrender.com"
                     className={`w-full border rounded-2xl px-8 py-4 text-xs focus:border-sky-500 outline-none transition-all font-mono ${theme === 'dark' ? 'bg-[#121422] border-white/10 text-white' : 'bg-black/5 border-black/10 text-slate-800'}`}
                     value={settings.edgeTtsUrl}
