@@ -64,7 +64,7 @@ export class LipSyncManager {
         if (!w) {
             if (this.isTalking) {
                 const s = Math.abs(Math.sin(Date.now() * 0.015));
-                this.weights.A = s * 0.7; // Amplified fallback
+                this.weights.A = s * 0.35; // Amplified fallback (Reduced for naturalness)
             } else { this.weights.A = 0; }
             this.vrm.expressionManager.setValue('aa', this.weights.A);
             return;
@@ -72,7 +72,7 @@ export class LipSyncManager {
 
         // Professional manifest lerp (Reactive Smoothing)
         const s = 0.65;
-        const multiplier = 1.35; // Amplification for better visibility
+        const multiplier = 0.75; // Reduced amplification for natural look
         this.weights.A += (w.A * multiplier - this.weights.A) * s;
         this.weights.I += (w.I * multiplier - this.weights.I) * s;
         this.weights.U += (w.U * multiplier - this.weights.U) * s;

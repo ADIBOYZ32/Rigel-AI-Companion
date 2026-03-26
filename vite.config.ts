@@ -19,16 +19,6 @@ export default defineConfig({
     },
   },
 
-  // 🛡️ BUNDLE SECURITY: EXTERNAL NEURAL LINK
-  optimizeDeps: {
-    exclude: ['edge-tts-universal']
-  },
-  build: {
-    rollupOptions: {
-        external: ['edge-tts-universal']
-    }
-  },
-
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })

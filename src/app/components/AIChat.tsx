@@ -247,20 +247,33 @@ export function AIChat({
       if (replyText.match(/\[\s*laugh\s*\]/i)) vrmRef.current?.triggerAnim('Laughing');
       if (replyText.match(/\[\s*backflip\s*\]/i)) vrmRef.current?.triggerAnim('Backflip');
 
+      // 🎭 Expression Tags — Drive VRM facial expressions
+      const lastExpression = replyText.match(/\[\s*(Sad|Surprised|Neutral|Angry)\s*\]/gi);
+      if (lastExpression && vrmRef.current) {
+        const expr = lastExpression[lastExpression.length - 1].replace(/[\[\]]/g, '').trim().toUpperCase();
+        vrmRef.current.setEmotion(expr);
+      }
+
       // 🧹 Neural Cleaning (invisible to user/TTS)
       const displayReply = replyText
         .replace(/\[\s*2d( mode)?\s*\]/gi, '')
         .replace(/\[\s*3d( mode)?\s*\]/gi, '')
         .replace(/\[\s*laugh\s*\]/gi, '')
         .replace(/\[\s*backflip\s*\]/gi, '')
-        .replace(/\[.*?\]/g, '') // Remove any other leftover debug tags
+        .replace(/\[\s*(Sad|Surprised|Neutral|Angry)\s*\]/gi, '')
+        .replace(/\[.*?\]/g, '')
         .trim();
       
       setHistory(prev => [...prev, { role: 'assistant', content: displayReply, timestamp: Date.now() }]);
 
       if (ttsEnabled) {
+         // Eradicates emojis using Unicode property escapes
+         const phonicsText = displayReply
+            .replace(/Rigel/gi, "Rye-jel")
+            .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+            .trim();
+
          const playFallbackTTS = () => {
-             const phonicsText = displayReply.replace(/Rigel/g, "Rye-jel");
              const utterance = new SpeechSynthesisUtterance(phonicsText);
              const voices = window.speechSynthesis.getVoices();
              const neerja = voices.find(v => v.name.includes('Neerja')) || voices.find(v => v.lang.includes('hi-IN')) || voices[0];
@@ -270,29 +283,51 @@ export function AIChat({
              window.speechSynthesis.speak(utterance);
          };
 
-         if (settings.elevenLabsKey) {
+         // 🎧 Helper: Play audio with full lip sync pipeline (works for both ElevenLabs & Edge TTS)
+         const playAudioWithLipSync = (audioUrl: string) => {
+             const audio = new Audio(audioUrl);
+             currentAudioRef.current = audio;
+             const ctx = (window as any)._audioCtx;
+             if (ctx && analyserRef.current) {
+                 const source = ctx.createMediaElementSource(audio);
+                 source.connect(analyserRef.current);
+                 analyserRef.current.connect(ctx.destination);
+             }
+             audio.onplay = () => {
+                 startTalking(true);
+                 if (live2dRef.current) live2dRef.current.syncAudio(audio);
+                 if (vrmRef.current) vrmRef.current.syncAudio(audio);
+             };
+             audio.onended = () => { stopTalking(); URL.revokeObjectURL(audioUrl); };
+             audio.play();
+         };
+
+         if (settings.ttsMode === 'elevenlabs' && settings.elevenLabsKey) {
             try {
-              const audioUrl = await ai.getElevenLabsAudio(displayReply);
-              if (audioUrl) {
-                  const audio = new Audio(audioUrl);
-                  currentAudioRef.current = audio;
-                  const ctx = (window as any)._audioCtx;
-                  if (ctx && analyserRef.current) {
-                      const source = ctx.createMediaElementSource(audio);
-                      source.connect(analyserRef.current);
-                      analyserRef.current.connect(ctx.destination);
-                  }
-                  audio.onplay = () => {
-                      startTalking(true);
-                      if (live2dRef.current) live2dRef.current.syncAudio(audio);
-                      if (vrmRef.current) vrmRef.current.syncAudio(audio);
-                  };
-                  audio.onended = () => { stopTalking(); URL.revokeObjectURL(audioUrl); };
-                  audio.play();
-              }
+              const audioUrl = await ai.getElevenLabsAudio(phonicsText);
+              if (audioUrl) playAudioWithLipSync(audioUrl);
             } catch (err: any) {
               playFallbackTTS();
             }
+          } else if (settings.ttsMode === 'edge_tts' && settings.edgeTtsUrl) {
+             // 🎙️ Edge TTS Backend (Render/Cloudflare hosted)
+             try {
+               let baseUrl = settings.edgeTtsUrl.trim();
+               if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+               if (!baseUrl.startsWith('http')) baseUrl = `http://${baseUrl}`;
+               
+               const ttsUrl = `${baseUrl}/tts?text=${encodeURIComponent(phonicsText)}`;
+               const res = await fetch(ttsUrl);
+               if (res.ok) {
+                 const blob = await res.blob();
+                 const audioUrl = URL.createObjectURL(blob);
+                 playAudioWithLipSync(audioUrl);
+               } else {
+                 playFallbackTTS();
+               }
+             } catch (err: any) {
+               playFallbackTTS();
+             }
           } else {
              playFallbackTTS();
           }

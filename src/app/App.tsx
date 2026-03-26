@@ -365,6 +365,7 @@ function ManualModal({ onClose, theme = 'dark' }: { onClose: () => void, theme?:
               <li>Navigate to the settings (gear icon top right).</li>
               <li>Input your Groq and ElevenLabs API keys.</li>
               <li>Your API keys are saved <strong className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>strictly in your browser's local cache</strong>. They are never sent to a central server.</li>
+              <li><strong className={theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}>Voice Setup Delay:</strong> Sometimes during initial setup, Edge TTS voice generation will be delayed up to 50 seconds to 1 minute while her neural servers wake up. After that, her voice will be generated in under 6 seconds.</li>
             </ul>
           </div>
           <div className={`p-4 rounded-xl border mt-2 ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-black/5 border-black/5'}`}>

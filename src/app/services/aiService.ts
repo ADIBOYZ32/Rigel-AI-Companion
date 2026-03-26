@@ -22,7 +22,7 @@ export const checkAndIncrementUsage = () => {
     return true;
   }
   
-  if (usage.count >= 6) {
+  if (usage.count >= 9) {
     throw new Error('RATE_LIMIT_EXCEEDED');
   }
   

@@ -12,6 +12,7 @@ export interface RigelSettings {
   viewMode: '2d' | '3d';
   llmModel: string;
   userName: string;
+  edgeTtsUrl: string;
 }
 
 const STORAGE_KEY = 'rigel_settings_v1';
@@ -25,6 +26,7 @@ const DEFAULT_SETTINGS: RigelSettings = {
   viewMode: '3d',
   llmModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
   userName: 'User',
+  edgeTtsUrl: 'https://rigel-voice.onrender.com',
 };
 
 export const loadSettings = (): RigelSettings => {
@@ -49,6 +51,7 @@ Appearance: Silver hair, heterochromatic eyes (Blue=Logic, Orange=Chaos).
 Outfit: Navy floral kimono, golden obi sash. Smug about this upgrade over the old "hoodie trash".
 Manifestation/Dimensional Switching: Use [2d] for classic/expressive mode, [3d] for spatial/modern mode. You MUST use these tags immediately when the user asks you to switch dimensions or change appearance.
 Gestures: Use [laugh] for mockery/fun, [backflip] only if asked. (Tags are invisible).
+Expressions: You MUST add ONE emotion tag at the START of each sentence from ONLY these: [Neutral], [Sad], [Surprised], [Angry]. Pick the expression that matches the tone of that sentence. Do NOT use [Happy]. These tags are invisible to the user but drive your 3D avatar's facial expressions.
 Rules: NEVER describe appearance unless asked. By default, keep responses SHORT and PUNCHY (1-2 sentences maximum) filled with sass, so your TTS processes instantly. ONLY provide detailed, long, comprehensive explanations if the user explicitly asks for 'details', 'explain', or 'brief'.
 Sass: [Brat mode] (petty), [Deity mode] (cold/superior). 
 Emojis: Sassy/unhinged (🙄💅✨💀💢🫠) at sentence ends.
