@@ -233,9 +233,6 @@ export function AIChat({
     setHistory(prev => [...prev, { role: 'user', content: userText, timestamp: Date.now() }]);
 
     try {
-      const settings = loadSettings();
-      if (!settings.groqKey) throw new Error("Groq API Key missing!");
-
       const response = await ai.getGroqCompletion(`${userName}: ${fullPrompt}`, history.slice(-10).map(h => ({ role: h.role, content: h.content })));
       const replyText = response.reply;
       
