@@ -43,6 +43,19 @@ export const getGroqCompletion = async (
 
   const systemPrompt = HINGLISH_PROMPT;
 
+  // 👁️ DYNAMIC VISION PROTOCOL: Extract Base64 assets if present
+  let userContent: any = message;
+  const visionMatch = message.match(/\[VISION_ASSET:\s*(data:image\/.*?;base64,.*?)\]/);
+  
+  if (visionMatch) {
+    const base64Image = visionMatch[1];
+    const cleanMessage = message.replace(/\[VISION_ASSET:.*?\]/, '').trim();
+    userContent = [
+      { type: "text", text: cleanMessage },
+      { type: "image_url", image_url: { url: base64Image } }
+    ];
+  }
+
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -54,10 +67,10 @@ export const getGroqCompletion = async (
       messages: [
         { role: 'system', content: systemPrompt },
         ...history,
-        { role: 'user', content: message }
+        { role: 'user', content: userContent }
       ],
-      temperature: 0.8, // Increased for more chaotic siphoning
-      max_tokens: 300
+      temperature: 0.8,
+      max_tokens: 500 // Increased for image analysis
     })
   });
 

@@ -211,13 +211,24 @@ export function AIChat({
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
+    const isImage = file.type.startsWith('image/');
+
     reader.onload = (event) => {
       const content = event.target?.result as string;
-      chatContextRef.current = `[FILE ATTACHED: ${file.name}]\n--- CONTENT START ---\n${content}\n--- CONTENT END ---\n\n`;
-      handleAIResponse(`I have attached a file named ${file.name}. Please read the contents and tell me what you think of it.`);
+      if (isImage) {
+        // Encode into a special Vision Packet for aiService to find
+        chatContextRef.current = `[VISION_ASSET: ${content}]\n`;
+        handleAIResponse("Check out this image I just showing you! What do you think of this manifestation?");
+      } else {
+        chatContextRef.current = `[FILE ATTACHED: ${file.name}]\n--- CONTENT START ---\n${content}\n--- CONTENT END ---\n\n`;
+        handleAIResponse(`I have attached a file named ${file.name}. Please read the contents and tell me what you think of it.`);
+      }
     };
-    reader.readAsText(file);
+
+    if (isImage) reader.readAsDataURL(file);
+    else reader.readAsText(file);
   };
 
   const handleAIResponse = async (userText: string) => {
