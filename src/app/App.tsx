@@ -106,23 +106,13 @@ export default function App() {
         }} 
       />
 
-      <header className={`absolute top-0 left-0 right-0 h-12 z-50 flex items-center justify-between px-6 transition-all border-b ${theme === 'dark' ? 'bg-[#0a0b14]/60 backdrop-blur-xl border-white/5' : 'bg-white/60 backdrop-blur-xl border-black/5'}`}>
-        <div className="flex items-center gap-3">
-           <div className="text-sky-500 opacity-80"><Activity size={16} /></div>
-           <h1 className={`text-sm font-bold tracking-tight ${theme === 'dark' ? 'text-white/90' : 'text-slate-800'}`}>Rigel AI Companion</h1>
-        </div>
-        <div className="flex items-center gap-2">
-           <button 
-             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10' : 'bg-black/5 border-black/5 text-slate-400 hover:bg-black/10'}`}
-           >
-             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-           </button>
-           <div onClick={() => setSettingsOpen(true)} className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10' : 'bg-black/5 border-black/5 text-slate-400 hover:bg-black/10'}`}><Settings size={14} /></div>
-        </div>
-      </header>
+      <aside className={`w-60 h-full py-4 z-20 border-r transition-all flex flex-col ${theme === 'dark' ? 'bg-[#0d0e1b]/80 border-white/5' : 'bg-white/80 border-black/5'}`}>
+            {/* BRANDING */}
+            <div className="px-6 pb-6 pt-2 border-b border-white/5 flex items-center gap-3">
+               <div className="text-sky-500 opacity-80"><Activity size={18} /></div>
+               <h1 className={`text-sm font-bold tracking-tight ${theme === 'dark' ? 'text-white/90' : 'text-slate-800'}`}>Rigel AI Companion</h1>
+            </div>
 
-      <aside className={`w-60 h-full pt-16 pb-12 z-20 border-r transition-all flex flex-col ${theme === 'dark' ? 'bg-[#0d0e1b]/80 border-white/5' : 'bg-white/80 border-black/5'}`}>
             <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto custom-scrollbar">
               <SidebarItem icon={<History size={18}/>} label="Convo History" active={historyOpen} theme={theme} onClick={() => setHistoryOpen(true)} />
               <SidebarItem icon={<Info size={18}/>} label="About" active={aboutOpen} theme={theme} onClick={() => setAboutOpen(true)} />
@@ -130,20 +120,30 @@ export default function App() {
 
             {/* 💸 Sidebar Siphon Redacted: Cleansed UI Protocol */}
             {!rigelMinimized && (
-              <div className="px-4 py-8 opacity-20 border-t border-white/5 flex justify-center">
+              <div className="px-4 py-4 opacity-20 border-t border-white/5 flex justify-center">
                  <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
               </div>
             )}
+            
            <div className="mt-auto space-y-2 p-3">
-           <button onClick={() => setManualOpen(true)} className={`flex items-center justify-between w-full h-11 px-4 border rounded-xl transition-all group ${theme === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/5' : 'bg-black/5 hover:bg-black/10 border-black/5'}`}>
-              <div className="flex items-center gap-3"><HelpCircle size={16} className={theme === 'dark' ? 'text-white/40' : 'text-slate-400'} /><span className={`text-[10px] font-bold ${theme === 'dark' ? 'text-white/60' : 'text-slate-600'}`}>MANUAL</span></div>
-              <ChevronRight size={14} className={`${theme === 'dark' ? 'text-white/20' : 'text-slate-300'} group-hover:translate-x-1 transition-transform`} />
-           </button>
-        </div>
+             <div className="flex gap-2 mb-2">
+               <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className={`flex-1 h-10 rounded-xl flex items-center justify-center transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10' : 'bg-black/5 border-black/5 text-slate-400 hover:bg-black/10'}`}>
+                 {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+               </button>
+               <button onClick={() => setSettingsOpen(true)} className={`flex-1 h-10 rounded-xl flex items-center justify-center transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10' : 'bg-black/5 border-black/5 text-slate-400 hover:bg-black/10'}`}>
+                 <Settings size={14} />
+               </button>
+             </div>
+             
+             <button onClick={() => setManualOpen(true)} className={`flex items-center justify-between w-full h-11 px-4 border rounded-xl transition-all group ${theme === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/5' : 'bg-black/5 hover:bg-black/10 border-black/5'}`}>
+               <div className="flex items-center gap-3"><HelpCircle size={16} className={theme === 'dark' ? 'text-white/40' : 'text-slate-400'} /><span className={`text-[10px] font-bold ${theme === 'dark' ? 'text-white/60' : 'text-slate-600'}`}>MANUAL</span></div>
+               <ChevronRight size={14} className={`${theme === 'dark' ? 'text-white/20' : 'text-slate-300'} group-hover:translate-x-1 transition-transform`} />
+             </button>
+           </div>
       </aside>
 
-      <main className="flex-1 z-10 flex pt-12 pb-12 relative overflow-hidden">
-        <div className="flex-[7] h-full flex flex-col p-4">
+      <main className="flex-1 z-10 flex pt-4 pb-4 relative overflow-hidden">
+        <div className="flex-[7] h-full flex flex-col p-4 pt-1">
            <div className={`flex-1 border rounded-[24px] overflow-hidden flex flex-col shadow-2xl transition-all ${theme === 'dark' ? 'bg-[#101222]/60 backdrop-blur-2xl border-white/5 shadow-black/50' : 'bg-white/60 backdrop-blur-2xl border-black/5 shadow-black/10'}`}>
               <div className={`h-14 px-6 flex items-center border-b transition-all ${theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-black/5 bg-black/[0.02]'}`}>
                  <h2 className={`text-xs font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-white/70' : 'text-slate-600'}`}>RIGEL CHAT</h2>

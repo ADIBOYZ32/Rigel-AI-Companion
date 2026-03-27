@@ -9,9 +9,10 @@ export interface ChatResponse {
 
 export const checkAndIncrementUsage = () => {
   const { groqKey } = loadSettings();
+  const activeKey = groqKey || import.meta.env.VITE_GROQ_KEY;
   
   // If user provided their own key (not the default VITE key), they bypass the limit
-  if (groqKey && groqKey !== import.meta.env.VITE_GROQ_KEY) return true;
+  if (activeKey && activeKey !== import.meta.env.VITE_GROQ_KEY) return true;
 
   const today = new Date().toDateString();
   const usageStr = localStorage.getItem('rigel_daily_usage');
@@ -35,7 +36,8 @@ export const getGroqCompletion = async (
   history: { role: 'user' | 'assistant', content: string }[] = []
 ): Promise<ChatResponse> => {
   const { groqKey, llmModel } = loadSettings();
-  if (!groqKey) throw new Error('Groq Key missing.');
+  const activeKey = groqKey || import.meta.env.VITE_GROQ_KEY;
+  if (!activeKey) throw new Error('Groq Key missing.');
 
   checkAndIncrementUsage();
 
@@ -44,7 +46,7 @@ export const getGroqCompletion = async (
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${groqKey}`,
+      'Authorization': `Bearer ${activeKey}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({

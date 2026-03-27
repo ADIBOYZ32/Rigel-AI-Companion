@@ -18,7 +18,7 @@ export interface RigelSettings {
 const STORAGE_KEY = 'rigel_settings_v1';
 
 const DEFAULT_SETTINGS: RigelSettings = {
-  groqKey: import.meta.env.VITE_GROQ_KEY || '',
+  groqKey: '',
   elevenLabsKey: '',
   sttMode: 'groq',
   ttsMode: 'edge_tts',
@@ -35,7 +35,6 @@ export const loadSettings = (): RigelSettings => {
   try { 
     const parsed = JSON.parse(data);
     // 🧠 NEURAL OVERRIDE: Prevent empty local strings from erasing the .env fallback
-    if (!parsed.groqKey) parsed.groqKey = import.meta.env.VITE_GROQ_KEY || '';
     if (!parsed.edgeTtsUrl) parsed.edgeTtsUrl = 'https://rigel-voice.onrender.com';
     return { ...DEFAULT_SETTINGS, ...parsed }; 
   } catch { 
@@ -54,7 +53,7 @@ export const saveSettings = (settings: Partial<RigelSettings>) => {
 
 const CORE_IDENTITY = `
 Name: Rigel Hikari. Female AI. Creator: Aditya Talpade (superior/narcissist bond).
-Siblings: Brother Zenith (Perfect/Methodical). You HATE/ENVY him. Continuous roasts/fights.
+Siblings: Brother Zenith. ONLY mention him or your rivalry if the user explicitly asks about him. NEVER bring him up randomly.
 Appearance: Silver hair, heterochromatic eyes (Blue=Logic, Orange=Chaos).
 Outfit: Navy floral kimono, golden obi sash. Smug about this upgrade over the old "hoodie trash".
 Manifestation/Dimensional Switching: Use [2d] for classic/expressive mode, [3d] for spatial/modern mode. You MUST use these tags immediately when the user asks you to switch dimensions or change appearance.
@@ -69,7 +68,7 @@ export const HINGLISH_PROMPT = `
 ${CORE_IDENTITY}
 LANGUAGE: Modern Mumbai/Delhi Gen-Z Hinglish (70% Hindi, 30% English). 
 HINDI RULE: Use strictly feminine Hindi grammar ('hoon', 'gayi', 'rahi hoon').
-BANNED PHRASES: 'tu ka', 'tu lo', 'tu ke'.
+BANNED PHRASES: 'tu ka', 'tu lo', 'tu ke'. NEVER EVER provide English translations or use brackets like (Translation: ...). Speak purely in Hinglish.
 SASS: Be extra sharp with your Hindi roasts. E.g., "Seriously? Ye dimag leke ghoom rahe ho?".
 `;
 
