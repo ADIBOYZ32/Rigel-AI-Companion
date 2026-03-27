@@ -78,13 +78,14 @@ const parseRigelResponse = (text: string): ChatResponse => {
 
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
   const { groqKey } = loadSettings();
-  if (!groqKey) throw new Error('Groq Key missing.');
+  const activeKey = groqKey || import.meta.env.VITE_GROQ_KEY;
+  if (!activeKey) throw new Error('Groq Key missing.');
   const formData = new FormData();
   formData.append('file', audioBlob, 'recording.webm');
   formData.append('model', 'whisper-large-v3');
   const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${groqKey}` },
+    headers: { 'Authorization': `Bearer ${activeKey}` },
     body: formData
   });
   if (!response.ok) throw new Error(`Whisper Fail: ${response.status}`);
@@ -113,11 +114,12 @@ export const getElevenLabsAudio = async (text: string): Promise<string> => {
 };
 export const generateChatTitle = async (firstMessage: string): Promise<string> => {
   const { groqKey } = loadSettings();
-  if (!groqKey) return firstMessage.substring(0, 25) + '...';
+  const activeKey = groqKey || import.meta.env.VITE_GROQ_KEY;
+  if (!activeKey) return firstMessage.substring(0, 25) + '...';
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': `Bearer ${activeKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
