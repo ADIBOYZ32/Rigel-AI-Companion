@@ -262,6 +262,7 @@ export function AIChat({
         .replace(/\[\s*backflip\s*\]/gi, '')
         .replace(/\[\s*(Sad|Surprised|Neutral|Angry)\s*\]/gi, '')
         .replace(/\[.*?\]/g, '')
+        .replace(/\(?\bTranslation(.*?)\)?/gi, '') // Instantly deletes any hallucinated translation brackets
         .trim();
       
       setHistory(prev => [...prev, { role: 'assistant', content: displayReply, timestamp: Date.now() }]);
