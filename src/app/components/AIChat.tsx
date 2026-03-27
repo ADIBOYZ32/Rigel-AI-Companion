@@ -233,6 +233,7 @@ export function AIChat({
     setHistory(prev => [...prev, { role: 'user', content: userText, timestamp: Date.now() }]);
 
     try {
+      const settings = loadSettings();
       const response = await ai.getGroqCompletion(`${userName}: ${fullPrompt}`, history.slice(-10).map(h => ({ role: h.role, content: h.content })));
       const replyText = response.reply;
       
