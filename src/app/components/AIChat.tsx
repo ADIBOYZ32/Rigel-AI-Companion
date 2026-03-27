@@ -416,7 +416,13 @@ export function AIChat({
 
       <div className="p-6">
         <div className={`backdrop-blur-3xl border rounded-[28px] p-1.5 flex items-center shadow-2xl focus-within:ring-2 transition-all ${theme === 'dark' ? 'bg-[#0a0b14]/50 border-white/10 focus-within:ring-sky-500/20' : 'bg-white border-black/10 shadow-black/5 focus-within:ring-sky-500/10'}`}>
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.js,.ts,.tsx,.json,.md,.py" />
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            className="hidden" 
+            accept=".txt,.js,.ts,.tsx,.json,.md,.py,.png,.jpg,.jpeg,.webp,image/*" 
+          />
           <button onClick={() => fileInputRef.current?.click()} className={`w-10 h-10 flex items-center justify-center transition-all active:scale-90 ${theme === 'dark' ? 'text-white/20 hover:text-white' : 'text-slate-300 hover:text-slate-600'}`}><Paperclip size={18} /></button>
           <input type="text" placeholder={isRecording ? "LISTENING..." : "Siphon message..."} className={`flex-1 bg-transparent border-none outline-none text-[11px] px-4 py-3 tracking-widest font-black uppercase ${isRecording ? 'text-rose-400 animate-pulse' : theme === 'dark' ? 'text-white placeholder:text-white/10' : 'text-slate-800 placeholder:text-slate-300'}`} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAIResponse(input)} disabled={loading || isRecording} />
           <div className="flex items-center gap-1">
