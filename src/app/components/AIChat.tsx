@@ -6,7 +6,7 @@ import { Live2DHandle } from './Live2DViewer';
 import { VRMHandle } from './VRMModelViewer';
 import type { ViewMode } from '../App';
 import * as ai from '../services/aiService';
-import { loadSettings } from '../services/settings';
+import { loadSettings, getDynamicVoiceSettings } from '../services/settings';
 import { AdBlockDetector, AdBlockOverlay } from './AdBlockDetector';
 
 export function AIChat({
@@ -256,11 +256,13 @@ export function AIChat({
       if (replyText.match(/\[\s*laugh\s*\]/i)) vrmRef.current?.triggerAnim('Laughing');
       if (replyText.match(/\[\s*backflip\s*\]/i)) vrmRef.current?.triggerAnim('Backflip');
 
-      // 🎭 Expression Tags — Drive VRM facial expressions
-      const lastExpression = replyText.match(/\[\s*(Sad|Surprised|Neutral|Angry)\s*\]/gi);
-      if (lastExpression && vrmRef.current) {
-        const expr = lastExpression[lastExpression.length - 1].replace(/[\[\]]/g, '').trim().toUpperCase();
-        vrmRef.current.setEmotion(expr);
+      // 🎭 Dynamic Expression & Vocal Settings (Pitch & Rate)
+      const dynamicVoice = getDynamicVoiceSettings(replyText);
+      if (vrmRef.current) {
+        vrmRef.current.setEmotion(dynamicVoice.emotion);
+      }
+      if (live2dRef.current) {
+        live2dRef.current.setEmotion(dynamicVoice.emotion);
       }
 
       // 🧹 Neural Cleaning (invisible to user/TTS)
@@ -269,7 +271,7 @@ export function AIChat({
         .replace(/\[\s*3d( mode)?\s*\]/gi, '')
         .replace(/\[\s*laugh\s*\]/gi, '')
         .replace(/\[\s*backflip\s*\]/gi, '')
-        .replace(/\[\s*(Sad|Surprised|Neutral|Angry)\s*\]/gi, '')
+        .replace(/\[\s*(DEFAULT|NEUTRAL|SMUG|WINK|SURPRISED|EXCITED|SHOCK|ANGRY|MAD|CRINGE|HAPPY|LAUGH|SAD|POUT|RELAXED|CALM|WHISPER)\s*\]/gi, '')
         .replace(/\[.*?\]/g, '')
         .replace(/\(?\bTranslation(.*?)\)?/gi, '') // Instantly deletes any hallucinated translation brackets
         .trim();
@@ -288,7 +290,8 @@ export function AIChat({
           const voices = window.speechSynthesis.getVoices();
           const neerja = voices.find(v => v.name.includes('Neerja')) || voices.find(v => v.lang.includes('hi-IN')) || voices[0];
           if (neerja) utterance.voice = neerja;
-          utterance.rate = 1.6; utterance.pitch = 1.65;
+          utterance.rate = dynamicVoice.fallbackRate;
+          utterance.pitch = dynamicVoice.fallbackPitch;
           utterance.onstart = () => startTalking(false); utterance.onend = stopTalking;
           window.speechSynthesis.speak(utterance);
         };
@@ -320,13 +323,13 @@ export function AIChat({
             playFallbackTTS();
           }
         } else if (settings.ttsMode === 'edge_tts' && settings.edgeTtsUrl) {
-          // 🎙️ Edge TTS Backend (Streaming Optimization)
+          // 🎙️ Edge TTS Backend (Dynamic Expression Pitch & Rate Streaming)
           try {
             let baseUrl = settings.edgeTtsUrl.trim();
             if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
             if (!baseUrl.startsWith('http')) baseUrl = `http://${baseUrl}`;
 
-            const ttsUrl = `${baseUrl}/tts?text=${encodeURIComponent(phonicsText)}`;
+            const ttsUrl = `${baseUrl}/tts?text=${encodeURIComponent(phonicsText)}&rate=${encodeURIComponent(dynamicVoice.rate)}&pitch=${encodeURIComponent(dynamicVoice.pitch)}`;
             // Instead of waiting for blob (slow), we play the URL directly for browser-native streaming
             playAudioWithLipSync(ttsUrl);
           } catch (err: any) {

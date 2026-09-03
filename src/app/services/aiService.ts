@@ -1,5 +1,5 @@
 
-import { loadSettings, HINGLISH_PROMPT } from './settings';
+import { loadSettings, RIGEL_SYSTEM_PROMPT, getDynamicVoiceSettings } from './settings';
 
 export interface ChatResponse {
   reply: string;
@@ -41,7 +41,7 @@ export const getGroqCompletion = async (
 
   checkAndIncrementUsage();
 
-  const systemPrompt = HINGLISH_PROMPT;
+  const systemPrompt = RIGEL_SYSTEM_PROMPT;
 
   // 👁️ DYNAMIC VISION PROTOCOL: Extract Base64 assets if present
   let userContent: any = message;
@@ -81,11 +81,10 @@ export const getGroqCompletion = async (
 };
 
 const parseRigelResponse = (text: string): ChatResponse => {
-  let emotion = 'NEUTRAL';
+  const { emotion } = getDynamicVoiceSettings(text);
   let animation = 'IDLE';
-  if (text.includes('[LAUGH]')) emotion = 'HAPPY';
-  if (text.toLowerCase().includes('brat')) emotion = 'SASSY';
-  if (text.includes('[Backflip]')) animation = 'BACKFLIP';
+  if (text.match(/\[\s*laugh\s*\]/i)) animation = 'LAUGH';
+  if (text.match(/\[\s*backflip\s*\]/i)) animation = 'BACKFLIP';
   return { reply: text, emotion, animation };
 };
 

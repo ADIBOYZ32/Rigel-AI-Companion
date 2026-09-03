@@ -35,7 +35,23 @@ export const VRMModelViewer = forwardRef<VRMHandle, { active?: boolean, onLoaded
         setEmotion: (emotion: string) => {
             if (!vrmRef.current?.expressionManager) return;
             const map: Record<string, VRMExpressionPresetName> = {
-                'HAPPY': 'happy', 'SAD': 'sad', 'ANGRY': 'angry', 'SURPRISED': 'surprised'
+                'HAPPY': 'happy',
+                'LAUGH': 'happy',
+                'SMUG': 'happy',
+                'WINK': 'happy',
+                'SAD': 'sad',
+                'POUT': 'sad',
+                'ANGRY': 'angry',
+                'MAD': 'angry',
+                'CRINGE': 'angry',
+                'SURPRISED': 'surprised',
+                'EXCITED': 'surprised',
+                'SHOCK': 'surprised',
+                'RELAXED': 'relaxed',
+                'CALM': 'relaxed',
+                'WHISPER': 'relaxed',
+                'NEUTRAL': 'neutral',
+                'DEFAULT': 'neutral'
             };
             const preset = map[emotion.toUpperCase()] || 'neutral';
             vrmRef.current.expressionManager.setValue(preset, 1.0);

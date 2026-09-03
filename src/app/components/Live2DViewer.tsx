@@ -46,8 +46,10 @@ export const Live2DViewer = forwardRef<Live2DHandle, { active?: boolean }>(({ ac
                     else model.internalModel?.motionManager?.expressionManager?.setExpression(name);
                 } catch (e) {}
             };
-            if (emotion === 'HAPPY') play('exp_02');
-            else if (emotion === 'SAD') play('exp_06');
+            const upper = emotion.toUpperCase();
+            if (['HAPPY', 'LAUGH', 'SMUG', 'WINK'].includes(upper)) play('exp_02');
+            else if (['SAD', 'POUT'].includes(upper)) play('exp_06');
+            else if (['ANGRY', 'MAD', 'CRINGE'].includes(upper)) play('exp_04');
             else { try { model.internalModel?.motionManager?.expressionManager?.restoreExpression(); } catch (_e) { } }
         },
         setMode: (mode: string) => {
