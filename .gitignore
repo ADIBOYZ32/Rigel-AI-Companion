@@ -43,3 +43,10 @@ ehthumbs.db
 *.tsbuildinfo
 .vite/
 coverage/
+
+# Python & TTS Audio Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+tts-server/*.mp3
+

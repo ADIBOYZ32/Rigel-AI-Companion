@@ -36,36 +36,36 @@ export function AIChat({
   useEffect(() => {
     setLoading(false);
     const saved = localStorage.getItem(`rigel_chat_${chatId}`);
-    if (saved) { try { setHistory(JSON.parse(saved)); } catch(e) { setHistory([]); } }
+    if (saved) { try { setHistory(JSON.parse(saved)); } catch (e) { setHistory([]); } }
     else { setHistory([]); }
   }, [chatId]);
 
   useEffect(() => {
     if (history.length === 0 && !localStorage.getItem(`rigel_chat_${chatId}`)) return;
     localStorage.setItem(`rigel_chat_${chatId}`, JSON.stringify(history));
-    
+
     const updateChatList = async () => {
       try {
         const list = JSON.parse(localStorage.getItem('rigel_chat_list') || '[]');
         const existing = list.find((c: any) => c.id === chatId);
-        
+
         let title = existing?.title || 'New Chat';
         if ((!existing || existing.title === 'New Chat') && history.length > 0) {
-           title = await ai.generateChatTitle(history[0].role === 'user' ? history[0].content : history[1]?.content || 'Active Session');
+          title = await ai.generateChatTitle(history[0].role === 'user' ? history[0].content : history[1]?.content || 'Active Session');
         }
 
         const existingIndex = list.findIndex((c: any) => c.id === chatId);
         if (existingIndex >= 0) {
-           list[existingIndex].title = title;
+          list[existingIndex].title = title;
         } else {
-           list.push({ id: chatId, title, timestamp: Date.now() });
+          list.push({ id: chatId, title, timestamp: Date.now() });
         }
         localStorage.setItem('rigel_chat_list', JSON.stringify(list));
-      } catch (e) {}
+      } catch (e) { }
     };
     updateChatList();
   }, [history, chatId]);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -73,7 +73,7 @@ export function AIChat({
   const proceduralLoopRef = useRef<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const chatContextRef = useRef<string>(''); 
+  const chatContextRef = useRef<string>('');
 
   useEffect(() => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -102,12 +102,12 @@ export function AIChat({
   };
 
   const runProceduralSync = () => {
-     const t = Date.now() * 0.01;
-     const syllable = Math.abs(Math.sin(t)) * (0.8 + Math.random() * 0.4);
-     const vol = Math.min(1.0, syllable * 1.5);
-     if (live2dRef.current) (live2dRef.current as any).setMouthVolume?.(vol);
-     if (vrmRef.current) (vrmRef.current as any).setMouthVolume?.(vol);
-     proceduralLoopRef.current = requestAnimationFrame(runProceduralSync);
+    const t = Date.now() * 0.01;
+    const syllable = Math.abs(Math.sin(t)) * (0.8 + Math.random() * 0.4);
+    const vol = Math.min(1.0, syllable * 1.5);
+    if (live2dRef.current) (live2dRef.current as any).setMouthVolume?.(vol);
+    if (vrmRef.current) (vrmRef.current as any).setMouthVolume?.(vol);
+    proceduralLoopRef.current = requestAnimationFrame(runProceduralSync);
   };
 
   const startTalking = (realAudio: boolean) => {
@@ -135,7 +135,7 @@ export function AIChat({
       setIsRecording(false);
     } else {
       setIsRecording(true);
-      
+
       if (settings.sttMode === 'web_speech') {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognition) {
@@ -157,22 +157,22 @@ export function AIChat({
       } else {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          
+
           const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
           const source = audioCtx.createMediaStreamSource(stream);
           const processor = audioCtx.createScriptProcessor(2048, 1, 1);
           let maxVolume = 0;
           processor.onaudioprocess = (e) => {
-             const input = e.inputBuffer.getChannelData(0);
-             let sum = 0;
-             for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
-             const vol = Math.sqrt(sum / input.length);
-             if (vol > maxVolume) maxVolume = vol;
+            const input = e.inputBuffer.getChannelData(0);
+            let sum = 0;
+            for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+            const vol = Math.sqrt(sum / input.length);
+            if (vol > maxVolume) maxVolume = vol;
           };
           source.connect(processor);
           processor.connect(audioCtx.destination);
 
-          const recorder = new MediaRecorder(stream, { 
+          const recorder = new MediaRecorder(stream, {
             mimeType: 'audio/webm;codecs=opus',
             audioBitsPerSecond: 128000
           });
@@ -180,22 +180,22 @@ export function AIChat({
           recorder.ondataavailable = (e) => chunks.push(e.data);
           recorder.onstop = async () => {
             const blob = new Blob(chunks, { type: 'audio/webm' });
-            
+
             if (maxVolume < 0.01) {
-               handleAIResponse("⚠ Neural Warning: Your signal was too weak for ingestion. Please manifest more volume.");
-               setLoading(false);
+              handleAIResponse("⚠ Neural Warning: Your signal was too weak for ingestion. Please manifest more volume.");
+              setLoading(false);
             } else {
-               setLoading(true);
-               try {
-                 const text = await ai.transcribeAudio(blob);
-                 const filter = (text || '').trim().toLowerCase().replace(/[.,!]/g, '');
-                 const hallucinations = ['you', 'thank you', 'subtitle', 'subtitles', 'thanks for watching', 'you more', 'you know'];
-                 const isHallucination = hallucinations.includes(filter);
-                 if (text && !isHallucination) handleAIResponse(text);
-               } catch (err) {} 
-               finally { setLoading(false); }
+              setLoading(true);
+              try {
+                const text = await ai.transcribeAudio(blob);
+                const filter = (text || '').trim().toLowerCase().replace(/[.,!]/g, '');
+                const hallucinations = ['you', 'thank you', 'subtitle', 'subtitles', 'thanks for watching', 'you more', 'you know'];
+                const isHallucination = hallucinations.includes(filter);
+                if (text && !isHallucination) handleAIResponse(text);
+              } catch (err) { }
+              finally { setLoading(false); }
             }
-            
+
             processor.disconnect();
             source.disconnect();
             audioCtx.close();
@@ -240,14 +240,14 @@ export function AIChat({
     setLoading(true);
     setInput('');
     const fullPrompt = `${chatContextRef.current}${userText}`;
-    chatContextRef.current = ''; 
+    chatContextRef.current = '';
     setHistory(prev => [...prev, { role: 'user', content: userText, timestamp: Date.now() }]);
 
     try {
       const settings = loadSettings();
       const response = await ai.getGroqCompletion(`${userName}: ${fullPrompt}`, history.slice(-10).map(h => ({ role: h.role, content: h.content })));
       const replyText = response.reply;
-      
+
       // 🧠 Robust Dimensional Switching (Autonomous)
       if (replyText.match(/\[\s*2d( mode)?\s*\]/i)) switchToMode('2d');
       else if (replyText.match(/\[\s*3d( mode)?\s*\]/i)) switchToMode('3d');
@@ -273,90 +273,84 @@ export function AIChat({
         .replace(/\[.*?\]/g, '')
         .replace(/\(?\bTranslation(.*?)\)?/gi, '') // Instantly deletes any hallucinated translation brackets
         .trim();
-      
+
       setHistory(prev => [...prev, { role: 'assistant', content: displayReply, timestamp: Date.now() }]);
 
       if (ttsEnabled) {
-         // Eradicates emojis using Unicode property escapes
-         const phonicsText = displayReply
-            .replace(/Rigel/gi, "Rye-jel")
-            .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
-            .trim();
+        // Eradicates emojis using Unicode property escapes
+        const phonicsText = displayReply
+          .replace(/Rigel/gi, "Rye-jel")
+          .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+          .trim();
 
-         const playFallbackTTS = () => {
-             const utterance = new SpeechSynthesisUtterance(phonicsText);
-             const voices = window.speechSynthesis.getVoices();
-             const neerja = voices.find(v => v.name.includes('Neerja')) || voices.find(v => v.lang.includes('hi-IN')) || voices[0];
-             if (neerja) utterance.voice = neerja;
-             utterance.rate = 1.6; utterance.pitch = 1.65;
-             utterance.onstart = () => startTalking(false); utterance.onend = stopTalking;
-             window.speechSynthesis.speak(utterance);
-         };
+        const playFallbackTTS = () => {
+          const utterance = new SpeechSynthesisUtterance(phonicsText);
+          const voices = window.speechSynthesis.getVoices();
+          const neerja = voices.find(v => v.name.includes('Neerja')) || voices.find(v => v.lang.includes('hi-IN')) || voices[0];
+          if (neerja) utterance.voice = neerja;
+          utterance.rate = 1.6; utterance.pitch = 1.65;
+          utterance.onstart = () => startTalking(false); utterance.onend = stopTalking;
+          window.speechSynthesis.speak(utterance);
+        };
 
-         // 🎧 Helper: Play audio with full lip sync pipeline (works for both ElevenLabs & Edge TTS)
-         const playAudioWithLipSync = (audioUrl: string) => {
-             const audio = new Audio(audioUrl);
-             currentAudioRef.current = audio;
-             const ctx = (window as any)._audioCtx;
-             if (ctx && analyserRef.current) {
-                 const source = ctx.createMediaElementSource(audio);
-                 source.connect(analyserRef.current);
-                 analyserRef.current.connect(ctx.destination);
-             }
-             audio.onplay = () => {
-                 startTalking(true);
-                 if (live2dRef.current) live2dRef.current.syncAudio(audio);
-                 if (vrmRef.current) vrmRef.current.syncAudio(audio);
-             };
-             audio.onended = () => { stopTalking(); URL.revokeObjectURL(audioUrl); };
-             audio.play();
-         };
-
-         if (settings.ttsMode === 'elevenlabs' && settings.elevenLabsKey) {
-            try {
-              const audioUrl = await ai.getElevenLabsAudio(phonicsText);
-              if (audioUrl) playAudioWithLipSync(audioUrl);
-            } catch (err: any) {
-              playFallbackTTS();
-            }
-          } else if (settings.ttsMode === 'edge_tts' && settings.edgeTtsUrl) {
-             // 🎙️ Edge TTS Backend (Render/Cloudflare hosted)
-             try {
-               let baseUrl = settings.edgeTtsUrl.trim();
-               if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-               if (!baseUrl.startsWith('http')) baseUrl = `http://${baseUrl}`;
-               
-               const ttsUrl = `${baseUrl}/tts?text=${encodeURIComponent(phonicsText)}`;
-               const res = await fetch(ttsUrl);
-               if (res.ok) {
-                 const blob = await res.blob();
-                 const audioUrl = URL.createObjectURL(blob);
-                 playAudioWithLipSync(audioUrl);
-               } else {
-                 playFallbackTTS();
-               }
-             } catch (err: any) {
-               playFallbackTTS();
-             }
-          } else {
-             playFallbackTTS();
+        // 🎧 Helper: Play audio with full lip sync pipeline (works for both ElevenLabs & Edge TTS)
+        const playAudioWithLipSync = (audioUrl: string) => {
+          const audio = new Audio(audioUrl);
+          currentAudioRef.current = audio;
+          const ctx = (window as any)._audioCtx;
+          if (ctx && analyserRef.current) {
+            const source = ctx.createMediaElementSource(audio);
+            source.connect(analyserRef.current);
+            analyserRef.current.connect(ctx.destination);
           }
-       }
+          audio.onplay = () => {
+            startTalking(true);
+            if (live2dRef.current) live2dRef.current.syncAudio(audio);
+            if (vrmRef.current) vrmRef.current.syncAudio(audio);
+          };
+          audio.onended = () => { stopTalking(); if (!audioUrl.startsWith('http')) URL.revokeObjectURL(audioUrl); };
+          audio.play();
+        };
+
+        if (settings.ttsMode === 'elevenlabs' && settings.elevenLabsKey) {
+          try {
+            const audioUrl = await ai.getElevenLabsAudio(phonicsText);
+            if (audioUrl) playAudioWithLipSync(audioUrl);
+          } catch (err: any) {
+            playFallbackTTS();
+          }
+        } else if (settings.ttsMode === 'edge_tts' && settings.edgeTtsUrl) {
+          // 🎙️ Edge TTS Backend (Streaming Optimization)
+          try {
+            let baseUrl = settings.edgeTtsUrl.trim();
+            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            if (!baseUrl.startsWith('http')) baseUrl = `http://${baseUrl}`;
+
+            const ttsUrl = `${baseUrl}/tts?text=${encodeURIComponent(phonicsText)}`;
+            // Instead of waiting for blob (slow), we play the URL directly for browser-native streaming
+            playAudioWithLipSync(ttsUrl);
+          } catch (err: any) {
+            playFallbackTTS();
+          }
+        } else {
+          playFallbackTTS();
+        }
+      }
     } catch (e: any) {
       if (e.message === 'RATE_LIMIT_EXCEEDED') {
         const limitMsg = "You reached daily limit credit, to chat Rigel add your api key from the settings!";
         setHistory(prev => [...prev, { role: 'assistant', content: limitMsg, timestamp: Date.now() }]);
-        
+
         // Sassy audio response for limit
         if (ttsEnabled) {
           try {
             const limitAudioUrl = await ai.getElevenLabsAudio("You reached daily limit credit, to chat Rigel add your api key! Stop begging, loser.");
             const audio = new Audio(limitAudioUrl);
             audio.play();
-          } catch {}
+          } catch { }
         }
       }
-    } 
+    }
     finally { setLoading(false); }
   };
 
@@ -372,11 +366,10 @@ export function AIChat({
         <AnimatePresence mode="popLayout">
           {history.map((msg, idx) => (
             <motion.div key={`${msg.timestamp}-${idx}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center border transition-all overflow-hidden ${
-                msg.role === 'user' 
+              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center border transition-all overflow-hidden ${msg.role === 'user'
                   ? theme === 'dark' ? 'bg-sky-500/10 border-sky-500/30' : 'bg-black/5 border-black/10'
                   : theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-sky-100 border-sky-300'
-              }`}>
+                }`}>
                 {msg.role === 'user' ? (
                   userLogo ? <img src={userLogo} className="w-full h-full object-cover" /> : <div className="text-[8px] font-black text-sky-400">ARC</div>
                 ) : (
@@ -384,16 +377,15 @@ export function AIChat({
                 )}
               </div>
               <div className="flex flex-col gap-3 max-w-[70%] md:max-w-[650px] overflow-hidden flex-shrink-0">
-                <div className={`rounded-[24px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all break-words whitespace-pre-wrap overflow-hidden ${
-                  msg.role === 'user' 
-                    ? 'bg-sky-500/10 border-sky-400/20 text-sky-500 font-medium' 
-                    : theme === 'dark' 
-                      ? 'bg-white/[0.04] border-white/5 text-white/90 font-light' 
+                <div className={`rounded-[24px] px-6 py-4 text-xs leading-relaxed shadow-xl border transition-all break-words whitespace-pre-wrap overflow-hidden ${msg.role === 'user'
+                    ? 'bg-sky-500/10 border-sky-400/20 text-sky-500 font-medium'
+                    : theme === 'dark'
+                      ? 'bg-white/[0.04] border-white/5 text-white/90 font-light'
                       : 'bg-white/80 border-black/5 text-slate-700 font-light shadow-sm'
-                }`}>
+                  }`}>
                   {msg.content}
                 </div>
-                
+
                 {/* 💸 Adsterra Siphon Protocol: Untouchable Grid (PURGED) */}
                 {/* 🚯 Legacy Adsterra Purge Complete */}
               </div>
@@ -416,18 +408,18 @@ export function AIChat({
 
       <div className="p-6">
         <div className={`backdrop-blur-3xl border rounded-[28px] p-1.5 flex items-center shadow-2xl focus-within:ring-2 transition-all ${theme === 'dark' ? 'bg-[#0a0b14]/50 border-white/10 focus-within:ring-sky-500/20' : 'bg-white border-black/10 shadow-black/5 focus-within:ring-sky-500/10'}`}>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileUpload} 
-            className="hidden" 
-            accept=".txt,.js,.ts,.tsx,.json,.md,.py,.png,.jpg,.jpeg,.webp,image/*" 
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            className="hidden"
+            accept=".txt,.js,.ts,.tsx,.json,.md,.py,.png,.jpg,.jpeg,.webp,image/*"
           />
           <button onClick={() => fileInputRef.current?.click()} className={`w-10 h-10 flex items-center justify-center transition-all active:scale-90 ${theme === 'dark' ? 'text-white/20 hover:text-white' : 'text-slate-300 hover:text-slate-600'}`}><Paperclip size={18} /></button>
           <input type="text" placeholder={isRecording ? "LISTENING..." : "Siphon message..."} className={`flex-1 bg-transparent border-none outline-none text-[11px] px-4 py-3 tracking-widest font-black uppercase ${isRecording ? 'text-rose-400 animate-pulse' : theme === 'dark' ? 'text-white placeholder:text-white/10' : 'text-slate-800 placeholder:text-slate-300'}`} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAIResponse(input)} disabled={loading || isRecording} />
           <div className="flex items-center gap-1">
-             <button onClick={toggleRecording} className={`w-10 h-10 flex items-center justify-center transition-all rounded-full ${isRecording ? 'bg-rose-500/20 text-rose-400 animate-pulse' : theme === 'dark' ? 'text-white/20 hover:text-sky-400 hover:bg-sky-400/5' : 'text-slate-300 hover:text-sky-600 hover:bg-sky-50'}`}>{isRecording ? <Disc size={18} /> : <Mic size={18} />}</button>
-             <button onClick={() => handleAIResponse(input)} disabled={loading || !input.trim() || isRecording} className="w-10 h-10 flex items-center justify-center bg-sky-600 hover:bg-sky-500 text-white rounded-[22px] transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] disabled:opacity-20 disabled:grayscale active:scale-95"><Send size={16} /></button>
+            <button onClick={toggleRecording} className={`w-10 h-10 flex items-center justify-center transition-all rounded-full ${isRecording ? 'bg-rose-500/20 text-rose-400 animate-pulse' : theme === 'dark' ? 'text-white/20 hover:text-sky-400 hover:bg-sky-400/5' : 'text-slate-300 hover:text-sky-600 hover:bg-sky-50'}`}>{isRecording ? <Disc size={18} /> : <Mic size={18} />}</button>
+            <button onClick={() => handleAIResponse(input)} disabled={loading || !input.trim() || isRecording} className="w-10 h-10 flex items-center justify-center bg-sky-600 hover:bg-sky-500 text-white rounded-[22px] transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] disabled:opacity-20 disabled:grayscale active:scale-95"><Send size={16} /></button>
           </div>
         </div>
       </div>

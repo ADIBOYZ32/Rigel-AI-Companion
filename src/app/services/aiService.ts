@@ -63,7 +63,7 @@ export const getGroqCompletion = async (
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: llmModel || "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: llmModel || "qwen/qwen3.8-27b",
       messages: [
         { role: 'system', content: systemPrompt },
         ...history,
